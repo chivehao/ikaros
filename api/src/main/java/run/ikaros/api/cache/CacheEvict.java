@@ -17,13 +17,13 @@ import org.springframework.core.annotation.AliasFor;
 public @interface CacheEvict {
 
     /**
-     * 缓存名称.
+     * 缓存命名空间.
      */
     @AliasFor("cacheNames")
     String[] value() default {};
 
     /**
-     * 缓存名称.
+     * 缓存命名空间.
      */
     String[] cacheNames() default {};
 

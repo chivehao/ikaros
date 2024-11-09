@@ -5,7 +5,13 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import run.ikaros.api.cache.CacheEvict;
 import run.ikaros.api.cache.CachePut;
@@ -29,6 +35,8 @@ public class CacheAspect {
     }
 
 
+    private final ExpressionParser spelExpressionParser = new SpelExpressionParser();
+
     private final ReactiveCacheManager reactiveCacheManager;
 
     public CacheAspect(ReactiveCacheManager reactiveCacheManager) {
@@ -42,21 +50,32 @@ public class CacheAspect {
     @Around("cacheableMethods() && @annotation(cacheable)")
     public Mono<Void> aroundCacheableMethods(ProceedingJoinPoint joinPoint, Cacheable cacheable)
         throws Throwable {
-        StringBuilder builder = new StringBuilder();
-        builder.append(Arrays.toString(cacheable.value()));
-        for (Object arg : joinPoint.getArgs()) {
-            builder.append(arg.toString());
-        }
-        final String key = builder.toString();
-
-        return reactiveCacheManager.get(key)
-            .switchIfEmpty(
-                Mono.just(joinPoint.proceed())
-                    .mapNotNull(JsonUtils::obj2Json)
-                    .flatMap(v -> reactiveCacheManager.put(key, v)
-                        .then(Mono.defer(() -> Mono.just(v))))
-            )
+        final String cacheKeyPostfix = parseSpelExpression(cacheable.key(), joinPoint);
+        return Flux.fromStream(Arrays.stream(cacheable.value()))
+            .map(v -> v + cacheKeyPostfix)
+            .flatMap(cacheKey -> {
+                try {
+                    return reactiveCacheManager.get(cacheKey)
+                        .switchIfEmpty(reactiveCacheManager.put(cacheKey,
+                                JsonUtils.obj2Json(joinPoint.proceed()))
+                            .then(Mono.fromCallable(() -> cacheKey)));
+                } catch (Throwable e) {
+                    return Mono.error(new RuntimeException(e));
+                }
+            })
+            .collectList()
             .then();
+    }
+
+    private String parseSpelExpression(String expression, ProceedingJoinPoint joinPoint) {
+        final EvaluationContext context = new StandardEvaluationContext();
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        String[] paramNames = methodSignature.getParameterNames();
+        Object[] paramValues = joinPoint.getArgs();
+        for (int i = 0; i < paramNames.length; i++) {
+            context.setVariable(paramNames[i], paramValues[i]);
+        }
+        return spelExpressionParser.parseExpression(expression).getValue(context, String.class);
     }
 
     /**
@@ -65,34 +84,27 @@ public class CacheAspect {
     @Around("cacheEvictMethods() && @annotation(cacheEvict)")
     public Mono<Void> aroundCacheEvictMethods(ProceedingJoinPoint joinPoint, CacheEvict cacheEvict)
         throws Throwable {
-        StringBuilder builder = new StringBuilder();
-        builder.append(Arrays.toString(cacheEvict.value()));
-        for (Object arg : joinPoint.getArgs()) {
-            builder.append(arg.toString());
-        }
-        final String key = builder.toString();
-
-        joinPoint.proceed();
-
-        return reactiveCacheManager.remove(key).then();
+        final String cacheKeyPostfix = parseSpelExpression(cacheEvict.key(), joinPoint);
+        return Flux.fromStream(Arrays.stream(cacheEvict.value()))
+            .map(v -> v + cacheKeyPostfix)
+            .flatMap(reactiveCacheManager::remove)
+            .collectList()
+            .then(Mono.just(joinPoint.proceed()))
+            .then();
     }
 
     /**
-     * 处理缓存移除注解切面.
+     * 处理缓存更新注解切面.
      */
     @Around("cachePutMethods() && @annotation(cachePut)")
     public Mono<Void> aroundCachePutMethods(ProceedingJoinPoint joinPoint, CachePut cachePut)
         throws Throwable {
-        StringBuilder builder = new StringBuilder();
-        builder.append(Arrays.toString(cachePut.value()));
-        for (Object arg : joinPoint.getArgs()) {
-            builder.append(arg.toString());
-        }
-        final String key = builder.toString();
-
-        Object proceed = joinPoint.proceed();
-        String value = JsonUtils.obj2Json(proceed);
-
-        return reactiveCacheManager.put(key, value).then();
+        final String result = JsonUtils.obj2Json(joinPoint.proceed());
+        final String cacheKeyPostfix = parseSpelExpression(cachePut.key(), joinPoint);
+        return Flux.fromStream(Arrays.stream(cachePut.value()))
+            .map(v -> v + cacheKeyPostfix)
+            .flatMap(cacheKey -> reactiveCacheManager.put(cacheKey, result))
+            .collectList()
+            .then();
     }
 }
