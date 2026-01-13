@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -31,6 +32,7 @@ import run.ikaros.api.core.subject.Subject;
 import run.ikaros.api.core.subject.vo.FindSubjectCondition;
 import run.ikaros.api.infra.exception.NotFoundException;
 import run.ikaros.api.infra.utils.StringUtils;
+import run.ikaros.api.infra.utils.UuidV7Utils;
 import run.ikaros.api.store.enums.AttachmentReferenceType;
 import run.ikaros.api.store.enums.SubjectSyncPlatform;
 import run.ikaros.api.store.enums.SubjectType;
@@ -96,8 +98,8 @@ public class SubjectServiceImpl implements SubjectService, ApplicationContextAwa
 
     @Override
     @MonoCacheable(value = "subject:", key = "#id")
-    public Mono<Subject> findById(Long id) {
-        Assert.isTrue(id > 0, "'id' must gt 0.");
+    public Mono<Subject> findById(UUID id) {
+        Assert.notNull(id, "'id' must not null.");
         return subjectRepository.findById(id)
             .flatMap(subjectEntity -> copyProperties(subjectEntity, new Subject()));
     }
@@ -112,9 +114,9 @@ public class SubjectServiceImpl implements SubjectService, ApplicationContextAwa
 
     @Override
     @MonoCacheEvict
-    public Mono<Subject> findByBgmId(@Nonnull Long subjectId, Long bgmtvId) {
-        Assert.isTrue(subjectId > 0, "'subjectId' must gt 0.");
-        Assert.isTrue(bgmtvId > 0, "'bgmtvId' must gt 0.");
+    public Mono<Subject> findByBgmId(@Nonnull UUID subjectId, String bgmtvId) {
+        Assert.notNull(subjectId, "'subjectId' must not null.");
+        Assert.hasText(bgmtvId, "'bgmtvId' must has text.");
         return Mono.just(bgmtvId)
             .flatMap(
                 platformId -> subjectSyncRepository.findBySubjectIdAndPlatformAndPlatformId(
@@ -127,10 +129,11 @@ public class SubjectServiceImpl implements SubjectService, ApplicationContextAwa
 
     @Override
     @MonoCacheEvict
-    public Mono<Subject> findBySubjectIdAndPlatformAndPlatformId(@Nonnull Long subjectId,
+    public Mono<Subject> findBySubjectIdAndPlatformAndPlatformId(@Nonnull UUID subjectId,
                                                                  @Nonnull SubjectSyncPlatform
                                                                      platform,
                                                                  @NotBlank String platformId) {
+        Assert.notNull(subjectId, "'subjectId' must not null.");
         Assert.notNull(platform, "'platform' must not null.");
         Assert.hasText(platformId, "'platformId' must has text.");
         return subjectSyncRepository.findBySubjectIdAndPlatformAndPlatformId(subjectId,
@@ -165,18 +168,21 @@ public class SubjectServiceImpl implements SubjectService, ApplicationContextAwa
     public synchronized Mono<Subject> create(Subject subject) {
         Assert.notNull(subject, "'subject' must not be null.");
         Assert.notNull(subject.getType(), "'subject.type' must not be null.");
+        if (subject.getId() == null) {
+            subject.setId(UuidV7Utils.generateUuid());
+        }
         return copyProperties(subject, new SubjectEntity())
             .map(subjectEntity -> {
                 subjectEntity.setUpdateTime(LocalDateTime.now());
                 return subjectEntity;
             })
-            .flatMap(subjectRepository::save)
+            .flatMap(subjectRepository::insert)
             .doOnNext(entity -> applicationContext.publishEvent(new SubjectAddEvent(this, entity)))
             .flatMap(subjectEntity -> copyProperties(subjectEntity, subject));
     }
 
     private Mono<SubjectEntity> publishSubjectUpdateEvent(SubjectEntity subjectEntity) {
-        Long subjectId = subjectEntity.getId();
+        UUID subjectId = subjectEntity.getId();
         return subjectRepository.findById(subjectId)
             .doOnSuccess(oldEntity -> {
                 SubjectUpdateEvent event = new SubjectUpdateEvent(this, oldEntity, subjectEntity);
@@ -190,7 +196,7 @@ public class SubjectServiceImpl implements SubjectService, ApplicationContextAwa
     @MonoCacheEvict
     public Mono<Void> update(Subject subject) {
         Assert.notNull(subject, "'subject' must not null.");
-        Assert.isTrue(subject.getId() > 0, "'subject id' must gt 0.");
+        Assert.notNull(subject.getId(), "'subject id' must not null.");
         return copyProperties(subject, new SubjectEntity())
             .flatMap(this::publishSubjectUpdateEvent)
             .flatMap(entity -> {
@@ -238,8 +244,8 @@ public class SubjectServiceImpl implements SubjectService, ApplicationContextAwa
 
     @Override
     @MonoCacheEvict(value = "subject:", key = "#id")
-    public Mono<Void> deleteById(Long id) {
-        Assert.isTrue(id > 0, "'id' must gt 0.");
+    public Mono<Void> deleteById(UUID id) {
+        Assert.notNull(id, "'id' must not null.");
         return subjectRepository.existsById(id)
             .filter(flag -> flag)
             .flatMap(flag -> subjectRepository.findById(id))
@@ -259,7 +265,8 @@ public class SubjectServiceImpl implements SubjectService, ApplicationContextAwa
             ;
     }
 
-    private Mono<Long> findMatchingEpisodeCount(Long subjectId) {
+    private Mono<Long> findMatchingEpisodeCount(UUID subjectId) {
+        Assert.notNull(subjectId, "'subjectId' must not null.");
         return episodeRepository.findAllBySubjectId(subjectId)
             .map(EpisodeEntity::getId)
             .filterWhen(epId -> attachmentReferenceRepository.existsByTypeAndReferenceId(

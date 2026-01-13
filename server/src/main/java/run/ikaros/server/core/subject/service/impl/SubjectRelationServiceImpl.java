@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import run.ikaros.api.core.subject.SubjectRelation;
+import run.ikaros.api.infra.utils.UuidV7Utils;
 import run.ikaros.api.store.enums.SubjectRelationType;
 import run.ikaros.server.cache.annotation.FluxCacheable;
 import run.ikaros.server.cache.annotation.MonoCacheEvict;
@@ -35,8 +37,7 @@ public class SubjectRelationServiceImpl implements SubjectRelationService {
 
     @Override
     @FluxCacheable(cacheNames = "subject:relations:", key = "#subjectId")
-    public Flux<SubjectRelation> findAllBySubjectId(Long subjectId) {
-        Assert.isTrue(subjectId > 0, "'subjectId' must gt zero.");
+    public Flux<SubjectRelation> findAllBySubjectId(UUID subjectId) {
         return subjectRelationRepository.findAllBySubjectId(subjectId)
             .collectList()
             .flatMapMany(subjectRelationEntities -> {
@@ -48,7 +49,7 @@ public class SubjectRelationServiceImpl implements SubjectRelationService {
                         subjectRelation.getRelationSubjects()
                             .add(subjectRelationEntity.getRelationSubjectId());
                     } else {
-                        var relationSubjectSet = new HashSet<Long>();
+                        var relationSubjectSet = new HashSet<UUID>();
                         relationSubjectSet.add(subjectRelationEntity.getRelationSubjectId());
                         SubjectRelation subjectRelation = SubjectRelation.builder()
                             .subject(subjectId)
@@ -65,9 +66,8 @@ public class SubjectRelationServiceImpl implements SubjectRelationService {
     @Override
     @MonoCacheable(cacheNames = "subject:relation:",
         key = "#subjectId.toString() + ' ' + #relationType.toString()")
-    public Mono<SubjectRelation> findBySubjectIdAndType(Long subjectId,
+    public Mono<SubjectRelation> findBySubjectIdAndType(UUID subjectId,
                                                         SubjectRelationType relationType) {
-        Assert.isTrue(subjectId > 0, "'subjectId' must gt zero.");
         Assert.notNull(relationType, "'relationType' must not be null.");
         return subjectRelationRepository
             .findAllBySubjectIdAndRelationType(subjectId, relationType)
@@ -81,11 +81,20 @@ public class SubjectRelationServiceImpl implements SubjectRelationService {
     }
 
     @Override
+    public Mono<SubjectRelationEntity> saveEntity(SubjectRelationEntity entity) {
+        if (entity.getId() == null) {
+            entity.setId(UuidV7Utils.generateUuid());
+            return subjectRelationRepository.insert(entity);
+        } else {
+            return subjectRelationRepository.update(entity);
+        }
+    }
+
+    @Override
     @MonoCacheEvict
     public Mono<SubjectRelation> createSubjectRelation(SubjectRelation subjectRelation) {
         Assert.notNull(subjectRelation, "'subjectRelation' must not be null.");
-        final Long masterSubjectId = subjectRelation.getSubject();
-        Assert.isTrue(masterSubjectId > 0, "'subjectRelation' must not be null.");
+        final UUID masterSubjectId = subjectRelation.getSubject();
         return findBySubjectIdAndType(masterSubjectId,
             subjectRelation.getRelationType())
             .map(SubjectRelation::getRelationSubjects)
@@ -101,7 +110,7 @@ public class SubjectRelationServiceImpl implements SubjectRelationService {
                         .relationType(subjectRelation.getRelationType())
                         .relationSubjectId(relationSubject)
                         .build())
-                    .flatMap(subjectRelationRepository::save)
+                    .flatMap(this::saveEntity)
                     // save slave relation
                     .flatMap(subjectRelationEntity -> subjectRepository.findById(
                             subjectRelationEntity.getSubjectId())
@@ -112,7 +121,7 @@ public class SubjectRelationServiceImpl implements SubjectRelationService {
                             .relationType(SubjectRelationCourt.judge(subjectType,
                                 subjectRelationEntity.getRelationType()))
                             .build())))
-                    .flatMap(subjectRelationRepository::save)
+                    .flatMap(this::saveEntity)
 
             )
             .then(findBySubjectIdAndType(masterSubjectId,
@@ -123,7 +132,6 @@ public class SubjectRelationServiceImpl implements SubjectRelationService {
     @MonoCacheEvict
     public Mono<SubjectRelation> removeSubjectRelation(SubjectRelation subjectRelation) {
         Assert.notNull(subjectRelation, "'subjectRelation' must not be null.");
-        Assert.isTrue(subjectRelation.getSubject() > 0, "'subjectRelation' must not be null.");
         return findBySubjectIdAndType(subjectRelation.getSubject(),
             subjectRelation.getRelationType())
             .map(SubjectRelation::getRelationSubjects)

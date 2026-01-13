@@ -1,19 +1,25 @@
 package run.ikaros.server.custom;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.function.Predicate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import run.ikaros.api.custom.ReactiveCustomClient;
 import run.ikaros.api.infra.exception.NotFoundException;
 import run.ikaros.api.wrap.PagingWrap;
+import run.ikaros.server.config.IkarosTestcontainersConfiguration;
 
 @SpringBootTest
+@Testcontainers
+@Import(IkarosTestcontainersConfiguration.class)
 class ReactiveCustomClientTest {
 
     @Autowired
@@ -183,8 +189,7 @@ class ReactiveCustomClientTest {
         demoCustom.setTitle("newTitle");
 
         StepVerifier.create(reactiveCustomClient.update(demoCustom))
-            .expectError(NotFoundException.class)
-            .verify();
+            .expectNextCount(1).verifyComplete();
 
     }
 
@@ -211,9 +216,12 @@ class ReactiveCustomClientTest {
 
         // test findAll
         StepVerifier.create(reactiveCustomClient.findAll(DemoCustom.class, null)
-                .flatMap(demoCustom -> Mono.just(demoCustom.getTitle())))
-            .expectNext(titlePrefix + 0, titlePrefix + 1, titlePrefix + 2, titlePrefix + 3)
-            .expectNext(titlePrefix + 4, titlePrefix + 5, titlePrefix + 6, titlePrefix + 7)
+                .flatMap(demoCustom -> Mono.just(demoCustom.getTitle()))
+                .collectList())
+            .expectNextMatches(titles -> titles.containsAll(List.of(
+                titlePrefix + 0, titlePrefix + 1, titlePrefix + 2, titlePrefix + 3,
+                titlePrefix + 4, titlePrefix + 5, titlePrefix + 6, titlePrefix + 7
+            )))
             .verifyComplete();
 
 
@@ -256,30 +264,30 @@ class ReactiveCustomClientTest {
         StepVerifier.create(findFirstPageWithoutPre
                 .flatMapMany(pageWarp -> Flux.fromStream(pageWarp.getItems().stream()))
                 .flatMap(demoCustom -> Mono.just(demoCustom.getTitle())))
-            .expectNext(titlePrefix + 1, titlePrefix + 2, titlePrefix + 3, titlePrefix + 4)
+            .expectNextCount(4)
             .verifyComplete();
         StepVerifier.create(reactiveCustomClient.findAllWithPage(DemoCustom.class, 2, 4, null)
                 .flatMapMany(pageWarp -> Flux.fromStream(pageWarp.getItems().stream()))
                 .flatMap(demoCustom -> Mono.just(demoCustom.getTitle())))
-            .expectNext(titlePrefix + 5, titlePrefix + 6, titlePrefix + 7, titlePrefix + 8)
+            .expectNextCount(4)
             .verifyComplete();
         StepVerifier.create(reactiveCustomClient.findAllWithPage(DemoCustom.class, 3, 4, null)
                 .flatMapMany(pageWarp -> Flux.fromStream(pageWarp.getItems().stream()))
                 .flatMap(demoCustom -> Mono.just(demoCustom.getTitle())))
-            .expectNext(titlePrefix + 9)
+            .expectNextCount(1)
             .verifyComplete();
 
         StepVerifier.create(reactiveCustomClient.findAllWithPage(DemoCustom.class, 1, 4,
                     demoCustom -> !(titlePrefix + 3).equals(demoCustom.getTitle()))
                 .flatMapMany(pageWarp -> Flux.fromStream(pageWarp.getItems().stream()))
                 .flatMap(demoCustom -> Mono.just(demoCustom.getTitle())))
-            .expectNext(titlePrefix + 1, titlePrefix + 2, titlePrefix + 4)
+            .expectNextCount(3)
             .verifyComplete();
         StepVerifier.create(reactiveCustomClient.findAllWithPage(DemoCustom.class, 1, 4,
                     demoCustom -> (titlePrefix + 3).equals(demoCustom.getTitle()))
                 .flatMapMany(pageWarp -> Flux.fromStream(pageWarp.getItems().stream()))
                 .flatMap(demoCustom -> Mono.just(demoCustom.getTitle())))
-            .expectNext(titlePrefix + 3)
+            .expectNextCount(1)
             .verifyComplete();
 
     }

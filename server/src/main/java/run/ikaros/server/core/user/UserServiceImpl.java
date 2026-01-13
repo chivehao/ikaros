@@ -6,6 +6,7 @@ import static run.ikaros.server.core.user.UserService.addEncodingIdPrefixIfNotEx
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotBlank;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
@@ -52,14 +53,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> save(User user) {
-        Assert.notNull(user, "'user' must not be null");
-        Assert.notNull(user.entity(), "'user entity' must not be null");
-        return Mono.just(user)
-            .map(User::entity)
-            .map(userEntity -> userEntity.setPassword(
-                passwordEncoder.encode(userEntity.getPassword())))
-            .flatMap(repository::save)
+    public Mono<User> insert(User user) {
+        Assert.notNull(user, "'user' must not null.");
+        Assert.notNull(user.entity(), "'user.entity' must not null.");
+        Assert.notNull(user.entity().getId(), "'user.entity.id' must not null.");
+        UserEntity userEntity = user.entity();
+        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        return repository.insert(user.entity())
             .map(User::new);
     }
 
@@ -99,7 +99,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Void> updateUsername(Long id, String username) {
+    public Mono<Void> updateUsername(UUID id, String username) {
+        Assert.notNull(id, "'id' must not null.");
         Assert.hasText("username", "'username' must has text");
         return repository.findById(id)
             .switchIfEmpty(Mono.error(new NotFoundException("User not found for id=" + id)))
@@ -162,9 +163,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Void> changeRole(String username, Long roleId) {
+    public Mono<Void> changeRole(String username, UUID roleId) {
         Assert.hasText(username, "'username' must not blank.");
-        Assert.isTrue(roleId != null && roleId > 0, "'roleId' must not null and must gt 0.");
+        Assert.notNull(roleId, "'roleId' must not null.");
         // todo impl change role.
         // return repository.existsByUsername(username)
         //     .flatMap(r -> r ? roleRepository.existsById(roleId) :
@@ -179,7 +180,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Void> sendVerificationCode(Long userId, VerificationCodeType type) {
+    public Mono<Void> sendVerificationCode(UUID userId, VerificationCodeType type) {
         Assert.notNull(userId, "'userId' must not null");
         Assert.notNull(type, "'type' must not null");
         if (type == VerificationCodeType.EMAIL) {
@@ -221,8 +222,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Void> deleteById(Long id) {
-        Assert.isTrue(id > 1, "id must be greater than 1.");
+    public Mono<Void> deleteById(UUID id) {
+        Assert.notNull(id, "'id' must not null.");
         return repository.deleteById(id);
     }
 
@@ -240,19 +241,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Long> getUserIdFromSecurityContext() {
+    public Mono<UUID> getUserIdFromSecurityContext() {
         return getUserFromSecurityContext()
             .map(run.ikaros.server.core.user.User::entity)
             .map(BaseEntity::getId);
     }
 
-    private Mono<Void> sendVerificationCodeWithPhoneMsg(Long userId, VerificationCodeType type) {
+    private Mono<Void> sendVerificationCodeWithPhoneMsg(UUID userId, VerificationCodeType type) {
         // todo
         return Mono.error(new UnsupportedOperationException(
             "Un impl for verification code type=" + type));
     }
 
-    private Mono<Void> sendVerificationCodeWithEmail(Long userId, VerificationCodeType type) {
+    private Mono<Void> sendVerificationCodeWithEmail(UUID userId, VerificationCodeType type) {
         return Mono.error(new UnsupportedOperationException(
             "Unsupported verification code type=" + type));
     }

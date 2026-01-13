@@ -2,12 +2,14 @@ package run.ikaros.server.core.user.role;
 
 import static run.ikaros.api.infra.utils.ReactiveBeanUtils.copyProperties;
 
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import run.ikaros.api.core.role.Role;
+import run.ikaros.api.infra.utils.UuidV7Utils;
 import run.ikaros.server.store.entity.UserRoleEntity;
 import run.ikaros.server.store.repository.RoleRepository;
 import run.ikaros.server.store.repository.UserRoleRepository;
@@ -24,8 +26,8 @@ public class DefaultUserRoleService implements UserRoleService {
         this.roleRepository = roleRepository;
     }
 
-    private Mono<Role> findRoleByRoleId(Long roleId) {
-        Assert.isTrue(roleId >= 0, "roleId must be greater than or equal 0");
+    private Mono<Role> findRoleByRoleId(UUID roleId) {
+        Assert.notNull(roleId, "'roleId' must not null.");
         return roleRepository.findById(roleId)
             .flatMap(roleEntity -> copyProperties(roleEntity, new Role()));
     }
@@ -33,8 +35,8 @@ public class DefaultUserRoleService implements UserRoleService {
     @Override
     public Mono<UserRoleEntity> saveEntity(UserRoleEntity entity) {
         Assert.notNull(entity, "roleEntity must not be null");
-        Assert.isTrue(entity.getUserId() >= 0, "roleId must be greater than or equal 0");
-        Assert.isTrue(entity.getRoleId() >= 0, "roleId must be greater than or equal 0");
+        Assert.notNull(entity.getUserId(), "'userId' must not null.");
+        Assert.notNull(entity.getRoleId(), "'roleId' must not null.");
         return userRoleRepository.findByUserIdAndRoleId(entity.getUserId(), entity.getRoleId())
             .map(e -> e.setUserId(entity.getUserId()).setRoleId(entity.getRoleId()))
             .switchIfEmpty(Mono.just(entity))
@@ -42,21 +44,26 @@ public class DefaultUserRoleService implements UserRoleService {
     }
 
     @Override
-    public Flux<Role> addUserRoles(Long userId, Long[] roleIds) {
-        Assert.isTrue(userId >= 0, "userId must be greater than zero");
+    public Flux<Role> addUserRoles(UUID userId, UUID[] roleIds) {
+        Assert.notNull(userId, "'userId' must not null.");
+        Assert.notNull(roleIds, "'roleIds' must not null.");
         Assert.isTrue(roleIds.length > 0, "roleIds must be greater than zero");
         return Flux.fromArray(roleIds)
-            .map(roleId -> UserRoleEntity.builder()
-                .userId(userId).roleId(roleId)
-                .build())
-            .flatMap(this::saveEntity)
+            .flatMap(rid -> userRoleRepository.findByUserIdAndRoleId(userId, rid)
+                .switchIfEmpty(userRoleRepository.insert(UserRoleEntity.builder()
+                    .id(UuidV7Utils.generateUuid())
+                    .userId(userId).roleId(rid)
+                    .build())
+                    .doOnSuccess(userRoleEntity ->
+                        log.debug("Create new user role entity: {}", userRoleEntity))))
             .map(UserRoleEntity::getRoleId)
             .flatMap(this::findRoleByRoleId);
     }
 
     @Override
-    public Mono<Void> deleteUserRoles(Long userId, Long[] roleIds) {
-        Assert.isTrue(userId >= 0, "userId must be greater than zero");
+    public Mono<Void> deleteUserRoles(UUID userId, UUID[] roleIds) {
+        Assert.notNull(userId, "'userId' must not null.");
+        Assert.notNull(roleIds, "'roleIds' must not null.");
         Assert.isTrue(roleIds.length > 0, "roleIds must be greater than zero");
         return Flux.fromArray(roleIds)
             .flatMap(roleId -> userRoleRepository.deleteByUserIdAndRoleId(userId, roleId))
@@ -64,8 +71,8 @@ public class DefaultUserRoleService implements UserRoleService {
     }
 
     @Override
-    public Flux<Role> getRolesForUser(Long userId) {
-        Assert.isTrue(userId >= 0, "userId must be greater than zero");
+    public Flux<Role> getRolesForUser(UUID userId) {
+        Assert.notNull(userId, "'userId' must not null.");
         return userRoleRepository.findByUserId(userId)
             .map(UserRoleEntity::getRoleId)
             .flatMap(this::findRoleByRoleId);

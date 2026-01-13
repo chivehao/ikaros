@@ -11,19 +11,25 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import run.ikaros.api.infra.exception.security.PasswordNotMatchingException;
+import run.ikaros.api.infra.utils.UuidV7Utils;
+import run.ikaros.server.config.IkarosTestcontainersConfiguration;
 import run.ikaros.server.security.SecurityProperties;
 import run.ikaros.server.store.entity.UserEntity;
 
 @SpringBootTest
 @AutoConfigureWebTestClient
+@Testcontainers
+@Import(IkarosTestcontainersConfiguration.class)
 class UserServiceTest {
 
     @Autowired
@@ -71,13 +77,15 @@ class UserServiceTest {
     void getUser() {
         final String test1 = "test1";
         // create user
-        Mono.just(UserEntity.builder()
-                .username(test1)
-                .password("old password")
-                .build())
-            .map(User::new)
-            .flatMap(userService::save)
-            .block(BLOCK_TIMEOUT);
+        UserEntity entity = UserEntity.builder()
+            .username(test1)
+            .password("old password")
+            .build();
+        entity.setId(UuidV7Utils.generateUuid());
+        User user = new User(entity);
+        StepVerifier.create(userService.insert(user))
+            .expectNextCount(1)
+            .verifyComplete();
 
 
         // verify get user
@@ -100,13 +108,15 @@ class UserServiceTest {
         final String oldPassword = "old password";
         final String newPassword = "new password";
         // create user
-        Mono.just(UserEntity.builder()
-                .username(username)
-                .password(oldPassword)
-                .build())
-            .map(User::new)
-            .flatMap(userService::save)
-            .block(BLOCK_TIMEOUT);
+        UserEntity entity = UserEntity.builder()
+            .username(username)
+            .password(oldPassword)
+            .build();
+        entity.setId(UuidV7Utils.generateUuid());
+        User user = new User(entity);
+        StepVerifier.create(userService.insert(user))
+            .expectNextCount(1)
+            .verifyComplete();
 
         Mono<String> encodedPasswordMono = userService.getUserByUsername(username)
             .map(User::entity)

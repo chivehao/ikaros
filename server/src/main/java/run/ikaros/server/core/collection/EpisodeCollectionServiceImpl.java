@@ -4,6 +4,7 @@ import static run.ikaros.api.infra.utils.ReactiveBeanUtils.copyProperties;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import run.ikaros.api.constant.AppConst;
 import run.ikaros.api.core.collection.EpisodeCollection;
 import run.ikaros.api.core.collection.event.EpisodeCollectionFinishChangeEvent;
 import run.ikaros.api.infra.exception.subject.EpisodeNotFoundException;
+import run.ikaros.api.infra.utils.UuidV7Utils;
 import run.ikaros.server.store.entity.EpisodeCollectionEntity;
 import run.ikaros.server.store.entity.EpisodeEntity;
 import run.ikaros.server.store.repository.EpisodeCollectionRepository;
@@ -39,9 +41,7 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
     }
 
     @Override
-    public Mono<EpisodeCollection> create(Long userId, Long episodeId) {
-        Assert.isTrue(userId >= 0, "'userId' must >= 0");
-        Assert.isTrue(episodeId >= 0, "'episodeId' must >= 0");
+    public Mono<EpisodeCollection> create(UUID userId, UUID episodeId) {
         return episodeCollectionRepository.findByUserIdAndEpisodeId(userId, episodeId)
             .switchIfEmpty(
                 episodeRepository.findById(episodeId)
@@ -49,7 +49,8 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
                         new EpisodeNotFoundException("episode not found for id: " + episodeId)))
                     .map(EpisodeEntity::getSubjectId)
                     .flatMap(subjectId -> episodeCollectionRepository
-                        .save(EpisodeCollectionEntity.builder()
+                        .insert(EpisodeCollectionEntity.builder()
+                            .id(UuidV7Utils.generateUuid())
                             .userId(userId)
                             .subjectId(subjectId)
                             .episodeId(episodeId)
@@ -63,9 +64,7 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
     }
 
     @Override
-    public Mono<EpisodeCollection> remove(Long userId, Long episodeId) {
-        Assert.isTrue(userId >= 0, "'userId' must >= 0");
-        Assert.isTrue(episodeId >= 0, "'episodeId' must >= 0");
+    public Mono<EpisodeCollection> remove(UUID userId, UUID episodeId) {
         return episodeCollectionRepository.findByUserIdAndEpisodeId(userId, episodeId)
             .flatMap(entity -> episodeCollectionRepository.delete(entity)
                 .doOnSuccess(unused -> log.info(
@@ -86,26 +85,20 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
     }
 
     @Override
-    public Mono<EpisodeCollection> findByUserIdAndEpisodeId(Long userId, Long episodeId) {
-        Assert.isTrue(userId >= 0, "userId must >= 0");
-        Assert.isTrue(episodeId >= 0, "episodeId must >= 0");
+    public Mono<EpisodeCollection> findByUserIdAndEpisodeId(UUID userId, UUID episodeId) {
         return episodeCollectionRepository.findByUserIdAndEpisodeId(userId, episodeId)
             .flatMap(this::entityTo);
     }
 
     @Override
-    public Flux<EpisodeCollection> findAllByUserIdAndSubjectId(Long userId, Long subjectId) {
-        Assert.isTrue(userId >= 0, "userId must >= 0");
-        Assert.isTrue(subjectId > 0, "subjectId must >= 0");
+    public Flux<EpisodeCollection> findAllByUserIdAndSubjectId(UUID userId, UUID subjectId) {
         return episodeCollectionRepository.findAllByUserIdAndSubjectId(userId, subjectId)
             .flatMap(this::entityTo);
     }
 
     @Override
-    public Mono<Void> updateEpisodeCollectionProgress(Long userId, Long episodeId,
+    public Mono<Void> updateEpisodeCollectionProgress(UUID userId, UUID episodeId,
                                                       Long progress) {
-        Assert.isTrue(userId >= 0, "userId must >= 0");
-        Assert.isTrue(episodeId > 0, "episodeId must >= 0");
         Assert.isTrue(progress > 0, "progress must > 0");
 
         return episodeCollectionRepository.findByUserIdAndEpisodeId(userId, episodeId)
@@ -121,10 +114,8 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
     }
 
     @Override
-    public Mono<Void> updateEpisodeCollection(Long userId, Long episodeId, Long progress,
+    public Mono<Void> updateEpisodeCollection(UUID userId, UUID episodeId, Long progress,
                                               Long duration) {
-        Assert.isTrue(userId >= 0, "userId must >= 0");
-        Assert.isTrue(episodeId > 0, "episodeId must >= 0");
         Assert.isTrue(progress > 0, "progress must > 0");
 
         if (Objects.isNull(duration) || duration <= 0) {
@@ -149,8 +140,8 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
             .then();
     }
 
-    private Mono<EpisodeCollectionEntity> createNewEpisodeCollectionEntity(Long userId,
-                                                                           Long episodeId,
+    private Mono<EpisodeCollectionEntity> createNewEpisodeCollectionEntity(UUID userId,
+                                                                           UUID episodeId,
                                                                            Long progress,
                                                                            Long duration) {
         return episodeRepository.findById(episodeId)
@@ -171,7 +162,7 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
     }
 
     private Mono<EpisodeCollectionEntity> updateSubjectId(
-        Long episodeId, EpisodeCollectionEntity episodeCollectionEntity) {
+        UUID episodeId, EpisodeCollectionEntity episodeCollectionEntity) {
         return episodeRepository.findById(episodeId)
             .switchIfEmpty(
                 Mono.error(new EpisodeNotFoundException("Episode not found for id: " + episodeId)))
@@ -180,10 +171,8 @@ public class EpisodeCollectionServiceImpl implements EpisodeCollectionService {
     }
 
     @Override
-    public Mono<Void> updateEpisodeCollectionFinish(Long userId, Long episodeId,
+    public Mono<Void> updateEpisodeCollectionFinish(UUID userId, UUID episodeId,
                                                     Boolean finish) {
-        Assert.isTrue(userId >= 0, "userId must >= 0");
-        Assert.isTrue(episodeId >= 0, "episodeId must >= 0");
         Assert.notNull(finish, "'finish' must not null.");
         return episodeCollectionRepository.findByUserIdAndEpisodeId(userId, episodeId)
             .filter(entity -> !finish.equals(entity.getFinish()))
