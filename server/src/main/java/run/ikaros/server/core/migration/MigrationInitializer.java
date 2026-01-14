@@ -33,6 +33,7 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 import run.ikaros.api.infra.utils.UuidV7Utils;
+import run.ikaros.server.infra.utils.JsonUtils;
 import run.ikaros.server.store.entity.AttachmentEntity;
 
 @Slf4j
@@ -42,6 +43,34 @@ public class MigrationInitializer {
     private final MigrationProperties migrationProperties;
     private final R2dbcEntityTemplate template;
     private final RelationalMappingContext mappingContext;
+
+    private static Map<String, String> rkTableNameMap = new HashMap<>();
+
+    static {
+        rkTableNameMap.putAll(Map.of(
+            "driver_id", "attachment_driver",
+            "user_id", "ikuser",
+            "attachment_id", "attachment",
+            "reference_id@type@USER_AVATAR", "attachment",
+            "reference_id@type@EPISODE", "episode",
+            "reference_id@type@SUBJECT", "subject",
+            "relation_attachment_id", "attachment",
+            "update_uid", "ikuser",
+            "create_uid", "ikuser",
+            "custom_id", "custom"
+        ));
+        rkTableNameMap.putAll(Map.of(
+            "subject_id", "subject",
+            "episode_id", "episode",
+            "episode_list_id", "episode_list",
+            "role_id", "role",
+            "character_id", "character",
+            "person_id", "person",
+            "authority_id", "authority",
+            "relation_subject_id", "subject",
+            "master_id", "ikuser"
+        ));
+    }
 
     /**
      * Construct.
@@ -142,7 +171,7 @@ public class MigrationInitializer {
     /**
      * 根据表名获取类.
      */
-    public Class<?> getEntityClassByTableName(String tableName) {
+    private Class<?> getEntityClassByTableName(String tableName) {
         return mappingContext.getPersistentEntities().stream()
             .filter(e -> tableName.equalsIgnoreCase(e.getTableName().getReference()))
             .map(PersistentEntity::getType)
@@ -185,7 +214,84 @@ public class MigrationInitializer {
 
     private Mono<Void> migrationWithNameIdUuidMap(
         DatabaseClient targetClient, Map<String, Map<String, String>> nameIdUuidMaps) {
+        return fetchTableNames()
+            .flatMapSequential(tabName -> fetchTableIds(tabName)
+                .flatMapSequential(id -> template.getDatabaseClient()
+                    .sql("select * form" + tabName + " where id=:id;")
+                    .bind("id", id)
+                    .fetch()
+                    .one()
+                    .map(this::replaceCanModifyMap)
+                    .map(this::replaceIdValueFromUuid)
+                    .flatMap(this::replaceRkIdValueFromMasterTableIdAndUuid)
+                    .flatMap(this::replaceReferenceIdRkIdValueFromMasterTableIdAndUuid)
+                    .flatMap(recordMap ->
+                        saveRecordToNewDatabase(tabName, recordMap, targetClient))
+                )
 
+            ).then();
+    }
+
+    private Map<String, Object> replaceCanModifyMap(Map<String, Object> recordMap) {
+        Map<String, Object> newMap = new HashMap<>(recordMap.size());
+        newMap.putAll(recordMap);
+        return newMap;
+    }
+
+    private Map<String, Object> replaceIdValueFromUuid(
+        Map<String, Object> recordMap
+    ) {
+        Object uuid = recordMap.get("uuid");
+        recordMap.put("id", uuid);
+        return recordMap;
+    }
+
+    private Mono<Map<String, Object>> replaceRkIdValueFromMasterTableIdAndUuid(
+        Map<String, Object> recordMap
+    ) {
+        return Flux.fromStream(Map.copyOf(recordMap).keySet().stream())
+            .filter(name -> rkTableNameMap.containsKey(name))
+            .flatMapSequential(name -> template.getDatabaseClient()
+                .sql("select uuid form " + rkTableNameMap.get(name) + " where id=:id")
+                .bind("id", recordMap.get(name))
+                .fetch()
+                .one()
+                .map(recordMap2 -> recordMap2.get("uuid"))
+                .map(uuid -> recordMap.put(name, uuid))
+                .then()
+            )
+            .then(Mono.defer(() -> Mono.just(recordMap)));
+    }
+
+    private Mono<Map<String, Object>> replaceReferenceIdRkIdValueFromMasterTableIdAndUuid(
+        Map<String, Object> recordMap
+    ) {
+        Map<String, Object> onlyReadMap = Map.copyOf(recordMap);
+        if (!onlyReadMap.containsKey("reference_id")) {
+            return Mono.just(recordMap);
+        }
+        if (!onlyReadMap.containsKey("type")) {
+            log.warn("Migration table 'attachment_reference' has issue for record: {}",
+                JsonUtils.obj2Json(recordMap));
+            return Mono.just(recordMap);
+        }
+        String rkKey = "reference_id@type@" + onlyReadMap.get("type").toString().toUpperCase();
+
+        return template.getDatabaseClient()
+            .sql("select uuid form " + rkTableNameMap.get(rkKey) + " where id=:id")
+            .bind("id", recordMap.get("reference_id"))
+            .fetch()
+            .one()
+            .map(recordMap2 -> recordMap2.get("uuid"))
+            .map(uuid -> recordMap.put("reference_id", uuid))
+            .then(Mono.defer(() -> Mono.just(recordMap)));
+    }
+
+
+    private Mono<Void> saveRecordToNewDatabase(String tabName,
+                                               Map<String, Object> recordMap,
+                                               DatabaseClient targetClient) {
+        recordMap.remove("id");
 
         return Mono.empty();
     }
