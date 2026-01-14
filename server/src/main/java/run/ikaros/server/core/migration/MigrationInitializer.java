@@ -241,8 +241,7 @@ public class MigrationInitializer {
     private Map<String, Object> replaceIdValueFromUuid(
         Map<String, Object> recordMap
     ) {
-        Object uuid = recordMap.get("uuid");
-        recordMap.put("id", uuid);
+        recordMap.put("id", recordMap.remove("uuid"));
         return recordMap;
     }
 
@@ -291,7 +290,7 @@ public class MigrationInitializer {
     private Mono<Void> saveRecordToNewDatabase(String tabName,
                                                Map<String, Object> recordMap,
                                                DatabaseClient targetClient) {
-        recordMap.remove("id");
+        // 如果 id 已经在新数据库存在了，则跳过插入
 
         return Mono.empty();
     }
