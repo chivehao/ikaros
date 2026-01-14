@@ -7,7 +7,9 @@ import static run.ikaros.api.core.attachment.AttachmentConst.DOWNLOAD_DIRECTORY_
 import static run.ikaros.api.core.attachment.AttachmentConst.ROOT_DIRECTORY_ID;
 import static run.ikaros.api.core.attachment.AttachmentConst.V_COVER_DIRECTORY_ID;
 import static run.ikaros.api.core.attachment.AttachmentConst.V_DOWNLOAD_DIRECTORY_ID;
+import static run.ikaros.api.core.attachment.AttachmentConst.V_ROOT_DIRECTORY_PARENT_ID;
 import static run.ikaros.api.core.attachment.AttachmentConst.V_ROOT_DIRECTORY_UUID;
+import static run.ikaros.api.infra.utils.StringUtils.snakeToCamel;
 
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
@@ -17,20 +19,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.mapping.RelationalMappingContext;
+import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
+import org.springframework.data.relational.core.mapping.RelationalPersistentProperty;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.data.relational.core.query.Update;
+import org.springframework.data.relational.core.sql.IdentifierProcessing;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
@@ -43,6 +53,7 @@ import run.ikaros.api.infra.utils.FileUtils;
 import run.ikaros.api.infra.utils.UuidV7Utils;
 import run.ikaros.server.infra.utils.JsonUtils;
 import run.ikaros.server.infra.utils.PathResourceUtils;
+import run.ikaros.server.infra.utils.RandomUtils;
 import run.ikaros.server.store.entity.AttachmentEntity;
 
 @Slf4j
@@ -54,6 +65,7 @@ public class MigrationInitializer {
     private final RelationalMappingContext mappingContext;
 
     private static Map<String, String> rkTableNameMap = new HashMap<>();
+    private static Set<String> uuidType = new HashSet<>();
 
     static {
         rkTableNameMap.putAll(Map.of(
@@ -79,6 +91,14 @@ public class MigrationInitializer {
             "relation_subject_id", "subject",
             "master_id", "ikuser"
         ));
+        for (String key : rkTableNameMap.keySet()) {
+            if (key.startsWith("reference_id")) {
+                continue;
+            }
+            uuidType.add(key);
+        }
+        uuidType.add("reference_id");
+        uuidType.add("parent_id");
     }
 
     /**
@@ -110,7 +130,8 @@ public class MigrationInitializer {
         DatabaseClient targetClient = DatabaseClient.create(pooledConnectionFactory);
 
         return updateUuidColumnValueForAllTableIfNotExists()
-            .then(Mono.defer(() -> createNewTableInTargetDatabase(targetClient)));
+            .then(Mono.defer(() -> createNewTableInTargetDatabase(targetClient)))
+            .then(Mono.defer(() -> migrationWithNameIdUuidMap(targetClient)));
     }
 
     @Nonnull
@@ -297,34 +318,32 @@ public class MigrationInitializer {
                 }
                 String id = split[0];
                 String desc = split[1].replace("_", " ");
-                return targetClient.sql("select id from migrations where id=:id;")
-                    .bind("id", Long.valueOf(id))
-                    .fetch()
-                    .one()
-                    .then()
-                    .switchIfEmpty(executeSqlScript(targetClient.getConnectionFactory(),
-                        "db/migration/" + resource.getFilename())
-                        .then(Mono.defer(
-                            () -> targetClient.sql("insert into migrations(id, description)"
-                                    + "values (:id, :description)")
-                                .bind("id", Long.valueOf(id))
-                                .bind("description", desc)
-                                .fetch()
-                                .rowsUpdated()
-                                .doOnSuccess(count ->
+                return executeSqlScript(targetClient.getConnectionFactory(),
+                    "db/migration/" + resource.getFilename())
+                    .then(Mono.defer(
+                        () -> targetClient.sql("insert into migrations(id, description)"
+                                + "values (:id, :description)"
+                                + "ON CONFLICT (id) DO NOTHING;")
+                            .bind("id", Long.valueOf(id))
+                            .bind("description", desc)
+                            .fetch()
+                            .rowsUpdated()
+                            .doOnSuccess(count -> {
+                                if (count > 0) {
                                     log.info("Insert into migrations record"
-                                        + " for id={}, and description={}", id, desc))
-                                .then())));
+                                        + " for id={}, and description={}", id, desc);
+                                }
+                            })
+                            .then()));
             })
             .then();
     }
 
-    private Mono<Void> migrationWithNameIdUuidMap(
-        DatabaseClient targetClient, Map<String, Map<String, String>> nameIdUuidMaps) {
+    private Mono<Void> migrationWithNameIdUuidMap(DatabaseClient targetClient) {
         return fetchTableNames()
             .flatMapSequential(tabName -> fetchTableIds(tabName)
                 .flatMapSequential(id -> template.getDatabaseClient()
-                    .sql("select * form" + tabName + " where id=:id;")
+                    .sql("select * from " + tabName + " where id=:id;")
                     .bind("id", id)
                     .fetch()
                     .one()
@@ -332,6 +351,7 @@ public class MigrationInitializer {
                     .map(this::replaceIdValueFromUuid)
                     .flatMap(this::replaceRkIdValueFromMasterTableIdAndUuid)
                     .flatMap(this::replaceReferenceIdRkIdValueFromMasterTableIdAndUuid)
+                    .flatMap(recoreMap -> replaceSelfParentIdFromSourceUuid(tabName, recoreMap))
                     .flatMap(recordMap ->
                         saveRecordToNewDatabase(tabName, recordMap, targetClient))
                 )
@@ -352,11 +372,18 @@ public class MigrationInitializer {
         return recordMap;
     }
 
+    private Map<String, Object> copyMap(Map<String, Object> from) {
+        Map<String, Object> to = new HashMap<>(from.size());
+        to.putAll(from);
+        return to;
+    }
+
     private Mono<Map<String, Object>> replaceRkIdValueFromMasterTableIdAndUuid(
         Map<String, Object> recordMap
     ) {
-        return Flux.fromStream(Map.copyOf(recordMap).keySet().stream())
+        return Flux.fromStream(copyMap(recordMap).keySet().stream())
             .filter(name -> rkTableNameMap.containsKey(name))
+            .filter(name -> recordMap.get(name) != null)
             .flatMapSequential(name -> template.getDatabaseClient()
                 .sql("select uuid form " + rkTableNameMap.get(name) + " where id=:id")
                 .bind("id", recordMap.get(name))
@@ -372,7 +399,7 @@ public class MigrationInitializer {
     private Mono<Map<String, Object>> replaceReferenceIdRkIdValueFromMasterTableIdAndUuid(
         Map<String, Object> recordMap
     ) {
-        Map<String, Object> onlyReadMap = Map.copyOf(recordMap);
+        Map<String, Object> onlyReadMap = copyMap(recordMap);
         if (!onlyReadMap.containsKey("reference_id")) {
             return Mono.just(recordMap);
         }
@@ -393,12 +420,121 @@ public class MigrationInitializer {
             .then(Mono.defer(() -> Mono.just(recordMap)));
     }
 
+    private Mono<Map<String, Object>> replaceSelfParentIdFromSourceUuid(
+        String tableName, Map<String, Object> recordMap
+    ) {
+        Map<String, Object> onlyReadMap = copyMap(recordMap);
+        if (!onlyReadMap.containsKey("parent_id")) {
+            return Mono.just(recordMap);
+        }
+
+        Object id = onlyReadMap.get("parent_id");
+
+        if ("attachment".equalsIgnoreCase(tableName)
+            && id instanceof String ids
+            && ("-1".equalsIgnoreCase(ids)
+            || "0".equalsIgnoreCase(ids))) {
+            recordMap.put("parent_id", V_ROOT_DIRECTORY_PARENT_ID);
+            return Mono.just(recordMap);
+        }
+
+        return template.getDatabaseClient()
+            .sql("select uuid form " + tableName + " where id=:id")
+            .bind("id", id)
+            .fetch()
+            .one()
+            .map(recordMap2 -> recordMap2.get("uuid"))
+            .map(uuid -> recordMap.put("parent_id", uuid))
+            .then()
+            .then(Mono.defer(() -> Mono.just(recordMap)));
+    }
+
+    private Class<?> getFieldTypeByColumnName(Class<?> entityClass, String columnName) {
+        // 1. 获取实体的元数据
+        RelationalPersistentEntity<?> entity =
+            mappingContext.getRequiredPersistentEntity(entityClass);
+
+        // 2. 遍历所有属性，比对数据库列名
+        for (RelationalPersistentProperty property : entity) {
+            // getColumnName() 会处理 @Column 注解定义的别名或默认转换逻辑
+            if (property.getColumnName().toSql(IdentifierProcessing.NONE)
+                .equalsIgnoreCase(columnName)) {
+                return property.getType();
+            }
+        }
+
+        // 3. 如果没找到，尝试将下划线转驼峰后直接按字段名查找（兜底方案）
+        RelationalPersistentProperty persistentProperty =
+            entity.getPersistentProperty(snakeToCamel(columnName));
+        return persistentProperty == null ? Object.class :
+            persistentProperty.getType(); // 彻底找不到返回 Object.class
+    }
+
+
+    private Mono<Long> insertMapIfAbsent(DatabaseClient client, String tableName,
+                                         Map<String, Object> data) {
+        // 1. 提取所有列名
+        String columns = String.join(", ", data.keySet());
+
+        // 2. 构建占位符 (例如 :id, :name, :data)
+        String placeholders = data.keySet().stream()
+            .map(key -> ":" + key)
+            .collect(Collectors.joining(", "));
+
+        // 3. 构建 ON CONFLICT 语句 (假设主键名为 id)
+        // 如果主键名不是 id，请替换为实际的唯一约束列名
+        String sql = String.format(
+            "INSERT INTO %s (%s) VALUES (%s) ON CONFLICT (id) DO NOTHING",
+            tableName, columns, placeholders
+        );
+
+        // 4. 创建执行对象
+        DatabaseClient.GenericExecuteSpec spec = client.sql(sql);
+
+        Class<?> cls = getEntityClassByTableName(tableName);
+
+        // 5. 循环 bind 数据
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            if (entry.getValue() == null) {
+                // 注意：R2DBC 绑定 null 需要指定类型，这里简单处理，实际可根据 key 获取实体类型
+                Class<?> fieldCls;
+                if (uuidType.contains(entry.getKey())) {
+                    fieldCls = UUID.class;
+                } else {
+                    fieldCls = getFieldTypeByColumnName(cls, entry.getKey());
+                }
+                spec = spec.bindNull(entry.getKey(), fieldCls);
+            } else {
+                spec = spec.bind(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return spec.fetch().rowsUpdated(); // 返回 1 表示插入成功，0 表示已存在跳过
+    }
 
     private Mono<Void> saveRecordToNewDatabase(String tabName,
                                                Map<String, Object> recordMap,
                                                DatabaseClient targetClient) {
-        // 如果 id 已经在新数据库存在了，则跳过插入
+        return insertMapIfAbsent(targetClient, tabName, recordMap)
+            .onErrorResume(DuplicateKeyException.class,
+                e -> {
+                    if ("ikuser".equalsIgnoreCase(tabName)) {
+                        recordMap.put("username", recordMap.get("username")
+                            + String.valueOf(RandomUtils.getRandom().nextInt(1, 100)));
+                        return insertMapIfAbsent(targetClient, tabName, recordMap);
+                    }
+                    return Mono.error(e);
+                })
+            .doOnSuccess(count -> {
+                if (count > 0) {
+                    log.info("Update table={} from record={}", tabName,
+                        JsonUtils.obj2Json(recordMap));
+                }
+            })
+            .doOnError(throwable ->
+                log.error("Insert fail for table={} from record={}", tabName,
+                    JsonUtils.obj2Json(recordMap), throwable))
+            .then();
 
-        return Mono.empty();
     }
 }
