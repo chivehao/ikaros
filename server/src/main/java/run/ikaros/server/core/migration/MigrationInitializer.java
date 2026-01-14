@@ -13,18 +13,25 @@ import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import jakarta.annotation.Nonnull;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.mapping.RelationalMappingContext;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.data.relational.core.query.Update;
+import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -32,8 +39,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
+import run.ikaros.api.infra.utils.FileUtils;
 import run.ikaros.api.infra.utils.UuidV7Utils;
 import run.ikaros.server.infra.utils.JsonUtils;
+import run.ikaros.server.infra.utils.PathResourceUtils;
 import run.ikaros.server.store.entity.AttachmentEntity;
 
 @Slf4j
@@ -100,7 +109,8 @@ public class MigrationInitializer {
         // Create database client
         DatabaseClient targetClient = DatabaseClient.create(pooledConnectionFactory);
 
-        return updateUuidColumnValueForAllTableIfNotExists();
+        return updateUuidColumnValueForAllTableIfNotExists()
+            .then(Mono.defer(() -> createNewTableInTargetDatabase(targetClient)));
     }
 
     @Nonnull
@@ -209,6 +219,103 @@ public class MigrationInitializer {
                     .runOn(Schedulers.boundedElastic());
             })
             .runOn(Schedulers.boundedElastic())
+            .then();
+    }
+
+    private Mono<Void> executeSqlScript(ConnectionFactory connectionFactory,
+                                        ClassPathResource classPathResource) {
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(
+            classPathResource
+        );
+        return populator.populate(connectionFactory)
+            .doOnSuccess(unused -> log.info("Execute sql script from: {}",
+                classPathResource.getPath()));
+    }
+
+    private Mono<Void> executeSqlScript(ConnectionFactory connectionFactory,
+                                        String classPathRelativePath) {
+        return executeSqlScript(connectionFactory, new ClassPathResource(classPathRelativePath));
+    }
+
+    /**
+     * 创建新的表结构, 需要适配v1.1.x的db-migration
+     * <ol>
+     *     <li>创建表 migrations </li>
+     *     <li>创建其它表时同时写纪录到 migrations</li>
+     * </ol>
+     * .
+     *
+     */
+    private Mono<Void> createNewTableInTargetDatabase(DatabaseClient targetClient) {
+        List<Resource> resources = new ArrayList<>();
+        try {
+            Resource[] resources2 = PathResourceUtils.getResources("db/migration");
+            resources.addAll(Arrays.asList(resources2));
+        } catch (IOException e) {
+            log.warn("Get resource fail in db/migration.", e);
+        }
+        resources.sort((o1, o2) -> {
+            String filename1 = o1.getFilename();
+            if (filename1 == null || "".equalsIgnoreCase(filename1)
+                || !filename1.startsWith("V")
+                || (!filename1.endsWith("sql") && !filename1.endsWith("SQL"))
+                || !filename1.contains("__")
+            ) {
+                return 0;
+            }
+            filename1 = filename1.substring(1, filename1.indexOf("__"));
+            Long l1 = Long.valueOf(filename1);
+            String filename2 = o2.getFilename();
+            if (filename2 == null || "".equalsIgnoreCase(filename2)
+                || !filename2.startsWith("V")
+                || (!filename2.endsWith("sql") && !filename2.endsWith("SQL"))
+                || !filename2.contains("__")
+            ) {
+                return 0;
+            }
+            filename2 = filename2.substring(1, filename2.indexOf("__"));
+            Long l2 = Long.valueOf(filename2);
+            return Math.toIntExact(l1 - l2);
+        });
+        return executeSqlScript(targetClient.getConnectionFactory(),
+            "db/v1_0_9/V202601141133__DDL_MIGRATION.sql")
+            .thenMany(Flux.defer(() -> Flux.fromStream(resources.stream())))
+            .flatMapSequential(resource -> {
+                String filename = resource.getFilename();
+                if (filename == null || "".equalsIgnoreCase(filename)
+                    || !filename.startsWith("V")
+                    || (!filename.endsWith("sql") && !filename.endsWith("SQL"))
+                    || !filename.contains("__")
+                ) {
+                    return Mono.empty();
+                }
+                filename = filename.substring(1);
+                filename = FileUtils.parseFileNameWithoutPostfix(filename);
+                String[] split = filename.split("__");
+                if (split.length != 2) {
+                    return Mono.empty();
+                }
+                String id = split[0];
+                String desc = split[1].replace("_", " ");
+                return targetClient.sql("select id from migrations where id=:id;")
+                    .bind("id", Long.valueOf(id))
+                    .fetch()
+                    .one()
+                    .then()
+                    .switchIfEmpty(executeSqlScript(targetClient.getConnectionFactory(),
+                        "db/migration/" + resource.getFilename())
+                        .then(Mono.defer(
+                            () -> targetClient.sql("insert into migrations(id, description)"
+                                    + "values (:id, :description)")
+                                .bind("id", Long.valueOf(id))
+                                .bind("description", desc)
+                                .fetch()
+                                .rowsUpdated()
+                                .doOnSuccess(count ->
+                                    log.info("Insert into migrations record"
+                                        + " for id={}, and description={}", id, desc))
+                                .then())));
+            })
             .then();
     }
 

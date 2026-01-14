@@ -1,6 +1,7 @@
 package run.ikaros.server.infra.utils;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.core.io.Resource;
@@ -39,5 +40,24 @@ public class PathResourceUtils {
             }
         }
         return classes;
+    }
+
+
+    /**
+     * 获取资源目录下的所有SQL文件.
+     *
+     */
+    public static Resource[] getResources(String directoryName) throws IOException {
+        // 1. 创建资源路径解析器
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+
+        // 2. 使用 Ant 风格路径：classpath*: 查找所有路径，包括 Jar 包内
+        // 例如目录名是 "migration"，则路径为 "classpath*:migration/*.sql"
+        String locationPattern = "classpath*:" + directoryName + "/**";
+
+        // 3. 获取所有匹配的资源
+        Resource[] resources = resolver.getResources(locationPattern);
+
+        return resources;
     }
 }
