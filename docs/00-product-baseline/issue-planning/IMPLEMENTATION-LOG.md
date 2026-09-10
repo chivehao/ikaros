@@ -1495,6 +1495,7 @@
 - 验证：Console `pnpm typecheck`、`pnpm build` 通过；`/sharing` 返回 HTTP 200；主要提交：`60b76efc`。
 - C01-04/C01-06：新增 `/collaboration-center/redeem` 验证分享页，调用公开 `POST /shares/redeem?token=...`；成功展示授权目标，失效、过期和撤销令牌直接展示服务端失败原因。
 - 验证：Console typecheck/build 通过；主要提交：`8800aae8`。
+- 本轮复验（2026-09-10）：sharing 模块 `mvn -s .mvn-local-settings.xml -pl sharing -am test` BUILD SUCCESS，但当前模块无自动化测试源；`console/src/views/sharing/index.vue` 与 `Redeem.vue` 已核对真实列表/创建/撤销/兑换 API，并保留令牌只在创建响应展示。GitHub 评论/关闭待认证恢复后同步。
 
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
