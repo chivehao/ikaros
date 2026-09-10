@@ -1592,6 +1592,12 @@
 - Console：Room 管理页调用 `POST /api/rooms/{roomId}/invites` 并携带 `Idempotency-Key`，同时提供 `POST /api/rooms/{id}/actions/join`；成功后重新读取成员列表。
 - 验证：邀请与加入 API 路径、错误反馈和状态刷新已复验；主要提交：`6feb874d`。
 
+## C02-03 分配成员角色
+- 日期：2026-09-10
+- 实现：成员角色变更由服务端验证操作者、房主权限和 Room 状态，不允许通过客户端字段绕过授权。
+- Console：Room 管理页按成员提供角色操作，调用 `POST /api/rooms/{roomId}/members/{principalId}/actions/role?role=...`，成功后刷新成员关系。
+- 验证：角色变更路径、成员归属和失败反馈已复验；主要提交：`6feb874d`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
