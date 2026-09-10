@@ -1824,3 +1824,9 @@
 - 实现：发布动作校验目标 Revision 属于当前用户文档，并将 Publication 固定绑定到该不可变 Revision。
 - Console：版本列表提供 slug 输入和真实 `POST /api/documents/{documentId}/actions/publish` 发布操作，发布结果明确反馈。
 - 验证：document 模块测试 10/10；Console `pnpm typecheck`；主要提交：`e14ef1f3`。
+
+## B13-05 撤回发布
+- 日期：2026-09-10
+- 实现：撤回动作将已有 Publication 更新为 `UNPUBLISHED`，不删除历史 Revision。
+- Console：文档详情提供带确认的真实 `POST /api/documents/{documentId}/actions/unpublish` 操作，并明确提示历史版本保留。
+- 验证：document 模块测试 11/11；Console `pnpm typecheck`；主要提交：`750dc9b4`。
