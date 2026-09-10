@@ -2183,3 +2183,9 @@
 - 实现：复用 Drive Binding 的恢复命令，保留同步游标和逐照片 Camera Backup 映射；不会重置已经提交的备份事实。
 - Console：备份目录页的“恢复中断备份”调用 `POST /api/drive/bindings/{bindingId}/resume`，成功后刷新持久化 binding 状态。
 - 验证：sync/drive 恢复路径和 Console 联调；主要提交：既有实现（本 issue 无新增代码）。
+
+## B22-05 展示失败项目并重试
+- 日期：2026-09-10
+- 实现：Camera Backup 保留 `ERROR`、`SOURCE_UNAVAILABLE`、`PERMISSION_REQUIRED` 和照片投影失败等状态及错误原因；重新提交同一稳定 `sourceItemId` 为 `QUEUED` 可恢复处理，已验证备份和已释放本地空间的状态仍受服务端保护。
+- Console：备份文件检测页支持失败项筛选，展示失败原因；通过相同文件标识和“等待备份”状态重新登记即可触发重试并在刷新后确认结果。
+- 验证：服务端状态转换与 `GET/PUT /api/drive/bindings/{bindingId}/camera-backups`；主要提交：既有实现（本 issue 无新增代码）。
