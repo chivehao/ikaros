@@ -1896,3 +1896,9 @@
 - 实现：复用 Drive 节点重命名 API，并以 `If-Match`/`expectedVersion` 传递节点版本，保留 owner 校验、名称规范化和同目录冲突处理。
 - Console：个人云盘节点列表新增重命名对话框，成功后刷新当前页，409 并发冲突提示用户重新加载。
 - 验证：Console `pnpm typecheck`；主要提交：`4c28a460`。
+
+## B15-04 移动文件或目录
+- 日期：2026-09-10
+- 实现：复用 Drive 节点移动 API，提交目标父目录和当前节点版本，由后端校验目标目录、循环移动及同目录名称冲突。
+- Console：个人云盘节点列表新增移动操作和目标父目录对话框，真实调用 `POST /api/drive/nodes/{nodeId}/move`，带 If-Match/expectedVersion 并在成功后刷新。
+- 验证：Console `pnpm typecheck`；主要提交：`0a227e98`。
