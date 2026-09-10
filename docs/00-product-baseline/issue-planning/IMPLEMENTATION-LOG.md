@@ -1919,3 +1919,9 @@
 - 整体验收：B15-01 至 B15-06 已按顺序完成，覆盖创建目录、分页浏览、重命名、移动、名称冲突和循环移动防护。
 - Console 对接：个人云盘页面真实接入创建、分页、重命名和移动 API，并展示明确的并发/冲突错误。
 - 验证证据：drive 模块测试 7/7；Console `pnpm typecheck`；主要提交：`fbd9b10a`、`6156ea9a`、`4c28a460`、`0a227e98`、`52b83ef1`、`517d2464`。
+
+## B16-01 上传文件新版本
+- 日期：2026-09-10
+- 实现：新增按 owner 校验的节点查询，Console 获取当前 `nodeVersion` 后创建新的不可变 Drive Revision，并更新文件当前版本；支持内容指纹和 operationId 幂等字段。
+- Console：文件详情页新增“上传新文件版本”表单，真实调用 `GET /api/drive/nodes/{nodeId}`、`POST /api/drive/nodes/{nodeId}/revisions`，409 时提示版本冲突。
+- 验证：drive 模块测试 7/7；Console `pnpm typecheck`；主要提交：`05b7b7c1`。
