@@ -1563,6 +1563,12 @@
 - Console：验证分享页真实调用 `POST /api/shares/redeem?token=...`，将服务端 `detail`/HTTP 错误展示给操作者，并区分加载、成功和失败状态。
 - 验证：`Redeem.vue` 已复验失效、过期和撤销令牌错误展示路径；主要提交：`8800aae8`。
 
+## C01-05 撤销分享
+- 日期：2026-09-10
+- 实现：Share Grant 通过服务端 revoke action 进入不可用状态，撤销不删除审计事实；后续兑换重新执行授权判断。
+- Console：分享列表仅对 ACTIVE 记录显示“撤销”，调用 `POST /api/shares/{id}/actions/revoke` 后刷新列表并展示 REVOKED 状态。
+- 验证：撤销按钮有状态保护和失败反馈；主要提交：`60b76efc`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
