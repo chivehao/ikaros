@@ -1700,6 +1700,12 @@
 - Console：ListenRoom 只提交命令和 `expectedStateVersion`，权限失败显示服务端错误且不更新本地成功状态。
 - 验证：`RoomControlController` 与 ListenRoom 控制路径已复验；主要提交：既有实现（本 issue 无新增代码）。
 
+## C04-05 重连恢复队列
+- 日期：2026-09-10
+- 实现：队列、当前歌曲和播放状态均通过持久化 Room 事件恢复，重连不依赖客户端内存快照。
+- Console：ListenRoom 按 `afterSequence` 增量拉取事件，每 5 秒同步一次，重连后恢复队列和播放状态版本。
+- 验证：事件增量回放和重连轮询已复验；主要提交：既有实现（本 issue 无新增代码）。
+
 ## 媒体消费 Console API 对齐修复
 - `/media` 原页面把不存在于 `PlaybackHistoryView` 的标题、进度和删除能力渲染成可用操作；已改为仅展示 `/media/playback/history` 实际返回的 `resourceId`、`sessionId`、`startedAt`、`endedAt` 和 `watchedSeconds`。
 - 移除无后端契约支撑的“继续”“从历史中移除”和通用队列“保存顺序”伪入口；音乐播放/队列继续使用 `/music` 的真实 API 页面。
