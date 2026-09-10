@@ -1598,6 +1598,12 @@
 - Console：Room 管理页按成员提供角色操作，调用 `POST /api/rooms/{roomId}/members/{principalId}/actions/role?role=...`，成功后刷新成员关系。
 - 验证：角色变更路径、成员归属和失败反馈已复验；主要提交：`6feb874d`。
 
+## C02-04 移除成员
+- 日期：2026-09-10
+- 实现：服务端按 Room 房主/管理权限执行成员移除，并保留成员状态事实。
+- Console：成员列表对可移除成员调用 `POST /api/rooms/{roomId}/members/{principalId}/actions/remove`，操作后重新加载成员列表并显示错误状态。
+- 验证：成员移除 API 与权限失败反馈已复验；主要提交：`6feb874d`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
