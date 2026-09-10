@@ -1878,3 +1878,9 @@
 - 整体验收：B14-01 至 B14-05 已按顺序完成，覆盖游戏条目、版本信息、资料包登记、资料类别区分和指定资料下载。
 - Console 对接：游戏档案页真实接入游戏、版本和资料包 API；下载沿用 Attachment 授权内容接口。
 - 验证证据：game 模块测试 3/3；Console `pnpm typecheck`；主要提交：`cbc4f42b`、`ea7cfffc`、`bcac8f9e`、`86f9bc2e`。
+
+## B15-01 创建目录
+- 日期：2026-09-10
+- 实现：复用 Drive Node 的 owner-scoped 创建能力，目录创建请求使用 `FOLDER` 类型并由服务端执行名称冲突校验。
+- Console：个人云盘根目录新增目录名称表单，真实调用 `POST /api/drive/spaces/{spaceId}/nodes`，成功后刷新当前空间节点。
+- 验证：Console `pnpm typecheck`；主要提交：`fbd9b10a`。
