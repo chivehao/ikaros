@@ -1665,6 +1665,11 @@
 - Console：WatchRoom 每 5 秒同步事件，重连/刷新时继续从当前 sequence 拉取并恢复播放状态版本；网络和服务端错误均有反馈。
 - 验证：`GET /api/rooms/{roomId}/events?afterSequence=...` 与页面重连轮询已复验；主要提交：既有实现（本 issue 无新增代码）。
 
+## C03 一起看（父 issue）
+- 整体验收：C03-01 至 C03-05 已按顺序完成，覆盖房主发起播放、播放/暂停、跳转、控制权限和断线重连恢复。
+- Console 对接：WatchRoom 使用真实 Room control/event API，命令携带 `expectedStateVersion`，事件按 sequence 增量同步；不使用静态播放状态。
+- 验证证据：sharing 模块 Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：既有实现（本 issue 无新增代码）。
+
 ## C04-01 至 C04-05 Console 对接审计
 - 新增 `/collaboration-center/listen`“一起听”页面，使用 `POST /rooms/{roomId}/control` 提交 `QUEUE_UPDATE`、`TRACK_CHANGE` 和 `PLAY_STATE`，由后端校验成员控制权限与状态版本。
 - 页面使用 `GET /rooms/{roomId}/events?afterSequence=...` 增量同步队列/歌曲/播放状态，并每 5 秒轮询，覆盖断线后按 sequence 恢复。
