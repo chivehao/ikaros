@@ -1616,6 +1616,11 @@
 - Console：Room 管理页提供结束操作，调用 `POST /api/rooms/{roomId}/actions/end`，刷新列表后展示关闭状态；锁定/解锁等相关状态操作也沿用同一权限边界。
 - 验证：Room 生命周期 API、状态刷新和失败反馈已复验；主要提交：`6feb874d`。
 
+## C02 房间成员管理（父 issue）
+- 整体验收：C02-01 至 C02-06 已按顺序完成，覆盖创建房间、邀请加入、角色分配、成员移除、离开和关闭房间。
+- Console 对接：`RoomManager.vue` 接入真实 Room、成员和邀请 API，所有变更后刷新服务端状态；权限、状态和错误由服务端作为最终判断。
+- 验证证据：sharing 模块 Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：`6feb874d`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
