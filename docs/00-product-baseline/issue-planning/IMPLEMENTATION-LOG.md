@@ -1902,3 +1902,9 @@
 - 实现：复用 Drive 节点移动 API，提交目标父目录和当前节点版本，由后端校验目标目录、循环移动及同目录名称冲突。
 - Console：个人云盘节点列表新增移动操作和目标父目录对话框，真实调用 `POST /api/drive/nodes/{nodeId}/move`，带 If-Match/expectedVersion 并在成功后刷新。
 - 验证：Console `pnpm typecheck`；主要提交：`0a227e98`。
+
+## B15-05 检测名称冲突
+- 日期：2026-09-10
+- 实现：沿用后端数据库唯一约束和 409 Conflict 契约，覆盖创建目录与移动节点两条路径。
+- Console：创建目录与移动节点遇到同目录重名时显示明确冲突提示，并区分节点版本/目标目录变化场景。
+- 验证：Console `pnpm typecheck`；主要提交：`52b83ef1`。
