@@ -1978,3 +1978,9 @@
 - 实现：复用 Drive Sync Binding 已有的 `full-resync` 命令，将备份绑定游标归零并交给同步流程重新扫描，不在 Console 伪造备份结果。
 - Console：备份目录页新增 BACKUP 绑定选择器和“提交首次备份”按钮，真实调用 `POST /api/drive/bindings/{bindingId}/full-resync`，提交后刷新持久化绑定状态。
 - 验证：Console `pnpm typecheck`；主要提交：`97c16557`。
+
+## B17-04 检测新增和修改文件
+- 日期：2026-09-10
+- 实现：复用 Drive 的 Camera Backup 状态机和持久化查询/更新接口，检测记录以稳定 `sourceItemId` 和内容指纹区分新增或修改文件，并由服务端校验 BACKUP 绑定归属及状态转换。
+- Console：新增“备份文件检测”后台页面，真实调用 `GET /api/drive/bindings/{bindingId}/camera-backups` 和 `PUT /api/drive/bindings/{bindingId}/camera-backups`，支持登记检测状态、刷新结果、展示远端节点和更新时间。
+- 验证：Console `pnpm typecheck`；主要提交：`9edd6ce3`。
