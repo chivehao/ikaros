@@ -2042,3 +2042,9 @@
 - 整体验收：B18-01 至 B18-06 已按顺序完成，覆盖服务端变更拉取、设备变更上传、冲突保留、用户解决、删除策略传播和重连续传。
 - Console 对接：服务端变更、设备变更上传和同步冲突均有真实 API 页面；同步游标、binding 状态、逐项 mutation 结果和冲突状态可观察。
 - 验证证据：drive 模块测试 9/9；Console `pnpm typecheck`；主要提交：`71927cc0`、`1696ad84`、`19962856`、`b0b2fb81`、`fef11578`、`e70fa2a9`。
+
+## B19-01 创建下载任务
+- 日期：2026-09-10
+- 实现：沿用 Offline Download Intent API，服务端校验设备可用性后创建持久化 `QUEUED` 任务，并区分明确下载与缓存类型。
+- Console：在“缓存与我的下载”后台页新增下载任务表单，真实调用 `POST /api/offline/downloads`，创建后刷新当前设备的下载列表。
+- 验证：Console `pnpm typecheck`；主要提交：`01dc5dce`。
