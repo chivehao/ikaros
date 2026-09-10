@@ -1676,6 +1676,12 @@
 - 验证：Console typecheck 通过；主要提交：`d42ae610`。
 - 本轮复验（2026-09-10）：`ListenRoom.vue` 已核对真实 Room Event 增量同步与 `QUEUE_UPDATE`、`TRACK_CHANGE`、`PLAY_STATE` 控制命令，均携带当前 `expectedStateVersion`；页面按 sequence 恢复状态。sharing 模块无自动化测试源，后端联调证据待补。
 
+## C04-01 建立房间播放队列
+- 日期：2026-09-10
+- 实现：一起听队列作为 Room 控制事件保存，队列变更携带状态版本并由服务端校验成员权限。
+- Console：ListenRoom 页面提交 `QUEUE_UPDATE` 控制命令，连接时通过事件 API 加载当前队列。
+- 验证：真实控制/事件 API 与页面路径已复验；主要提交：既有实现（本 issue 无新增代码）。
+
 ## 媒体消费 Console API 对齐修复
 - `/media` 原页面把不存在于 `PlaybackHistoryView` 的标题、进度和删除能力渲染成可用操作；已改为仅展示 `/media/playback/history` 实际返回的 `resourceId`、`sessionId`、`startedAt`、`endedAt` 和 `watchedSeconds`。
 - 移除无后端契约支撑的“继续”“从历史中移除”和通用队列“保存顺序”伪入口；音乐播放/队列继续使用 `/music` 的真实 API 页面。
