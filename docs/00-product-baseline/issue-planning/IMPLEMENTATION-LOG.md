@@ -1551,6 +1551,12 @@
 - Console：创建分享表单使用日期时间选择器，提交前要求有效期，列表展示真实过期时间。
 - 验证：`CreateShareRequest` 与 Console 字段对齐，sharing Maven 构建及 Console typecheck/build 已复验；主要提交：`60b76efc`。
 
+## C01-03 配置访问限制
+- 日期：2026-09-10
+- 实现：Share Grant 以 `granteeType`、`granteeId` 和 capabilities 表达访问限制；授权判断仍在服务端执行，不扩大底层 Resource 权限。
+- Console：创建分享页支持链接令牌、指定用户、访客会话三种授予方式；指定用户必须填写用户 ID，并可配置 `read`/`download` 等能力。
+- 验证：非法授予参数由表单和服务端共同拒绝，真实分享列表保留授予方式与能力；主要提交：`60b76efc`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
