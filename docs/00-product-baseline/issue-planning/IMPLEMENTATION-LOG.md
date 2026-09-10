@@ -1996,3 +1996,8 @@
 - 实现：复用 Camera Backup 查询结果中的失败状态和 `errorMessage`，不改变服务端失败事实或覆盖失败历史。
 - Console：备份文件检测页增加“仅显示失败文件”筛选和失败原因列，真实展示 `ERROR`、`SOURCE_UNAVAILABLE`、`PERMISSION_REQUIRED`、`PHOTO_PROJECTION_FAILED` 等失败记录。
 - 验证：Console `pnpm typecheck`；主要提交：`dc3c8a4e`。
+
+## B17 设备单向备份（父 issue）
+- 整体验收：B17-01 至 B17-06 已按顺序完成，覆盖设备登记、备份目录配置、首次备份、文件检测、中断恢复和逐文件失败结果。
+- Console 对接：同步设备、备份目录、备份操作和备份文件检测均为真实 API 页面，展示持久化 binding 与 Camera Backup 状态，不使用静态假数据。
+- 验证证据：Console `pnpm typecheck`；主要提交：`ed5f11c7`、`2e37cab3`、`97c16557`、`9edd6ce3`、`661cd358`、`dc3c8a4e`。
