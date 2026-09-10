@@ -2177,3 +2177,9 @@
 - 实现：Camera Backup 映射使用数据库唯一约束 `UNIQUE (binding_id, source_item_id)`；重复上报通过已有映射更新状态和指纹，不产生重复业务记录。
 - Console：文件检测页使用稳定本地文件标识重新提交即可复用同一映射，并在刷新后观察单条结果。
 - 验证：Migration `V202609025300__DDL_DRIVE_P0.sql` 与 `findByBindingIdAndSourceItemId` 持久化路径；主要提交：既有实现（本 issue 无新增代码）。
+
+## B22-04 恢复中断备份
+- 日期：2026-09-10
+- 实现：复用 Drive Binding 的恢复命令，保留同步游标和逐照片 Camera Backup 映射；不会重置已经提交的备份事实。
+- Console：备份目录页的“恢复中断备份”调用 `POST /api/drive/bindings/{bindingId}/resume`，成功后刷新持久化 binding 状态。
+- 验证：sync/drive 恢复路径和 Console 联调；主要提交：既有实现（本 issue 无新增代码）。
