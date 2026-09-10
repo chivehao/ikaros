@@ -2083,3 +2083,9 @@
 - 整体验收：B19-01 至 B19-06 已按顺序完成，覆盖任务创建、暂停/继续、取消、Manifest 完整性校验、已下载内容查看和指定下载移除。
 - Console 对接：缓存与我的下载、下载完整性页面均已接入真实 Offline API，区分明确下载与 CACHE，展示持久化状态和失败/校验依据。
 - 验证证据：sync 模块编译测试通过；Console `pnpm typecheck`；主要提交：`01dc5dce`、`6a988afb`、`de956cb7`、`1319fe6b`、`1ef8ba26`、`04631a51`。
+
+## B20-01 离线打开已下载内容
+- 日期：2026-09-10
+- 实现：对已完成的明确下载增加本机离线副本流程：通过真实 Attachment Content API 获取 Blob 后写入 IndexedDB/localForage，并按 Download Intent ID 隔离；“离线打开”只读取本机副本，不回退请求服务端内容。本机没有副本时明确报错。
+- Console：在“缓存与我的下载”页面增加“准备离线副本”和“离线打开”操作，移除下载时同步清理对应本机副本；仅 `DOWNLOAD + COMPLETED` 且存在 Attachment ID 的记录可操作。
+- 验证：Console `pnpm typecheck`；主要提交：`eb77877f`。
