@@ -1603,6 +1603,7 @@
 ## A22 插件生命周期（父 issue）
 - 整体验收：A22-01 至 A22-06 已逐项完成；插件安装校验、兼容性、显式启用、扩展撤销、升级失败保护和卸载保留策略均有运行时行为与 Console `/plugins` 入口。
 - 验证证据：`InMemoryPluginRuntimeTest` 当前 12/12；Console 插件页已通过 typecheck/build 审计。持久化运行时使用同一生命周期契约，完整 PostgreSQL/Testcontainers 验证仍受本机 Docker 不可用限制。
+- 本轮复验（2026-09-10）：plugin 模块全量回归 12/12 通过；`integration/index.vue` 的插件页已核对真实安装、升级、启用/禁用、卸载和声明/授予权限字段，失败状态来自服务端且不刷新为伪成功。持久化运行时集成验证仍需 Testcontainers。
 
 ## A23-01 任务完成或失败生成通知
 - 日期：2026-09-10
