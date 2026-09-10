@@ -2136,3 +2136,9 @@
 - 实现：复用已有附件上传闭环：浏览器选择 File、计算 SHA-256、创建带 `Idempotency-Key` 的 Upload Intent、向 Provider 上传对象，再调用 Attachment Commit；中断时可终止上传会话。
 - Console：现有“附件与 Blob”页面已接入上述真实 API，提供桌面文件选择、Provider/角色选择、上传进度状态和失败/终止反馈，无需新增重复页面。
 - 验证：运行应用 OpenAPI 暴露 `/api/resources/{resourceId}/attachments/upload-intents`、`/commit` 和会话终止路径；Console `pnpm typecheck` 已通过；主要提交：既有实现（本 issue 无新增代码）。
+
+## B21-03 移动端内容消费
+- 日期：2026-09-10
+- 实现：视频播放、音乐播放、图片/视频/音频/文档预览和 EPUB 章节阅读均复用真实预览授权、播放会话、阅读会话与进度 API；本次补充移动端消费弹窗的视口适配，避免固定桌面宽度造成手机溢出。
+- Console：窄屏弹窗自动收缩到视口宽度，内容区可滚动，视频和文档预览限制在可用屏幕高度内；既有加载、空内容、授权失败、不可用附件和进度保存反馈继续生效。
+- 验证：Console `pnpm typecheck`；主要提交：`48e8508f`。
