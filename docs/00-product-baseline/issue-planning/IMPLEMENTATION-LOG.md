@@ -2113,3 +2113,14 @@
 - 实现：新增 `POST /api/offline/cache/evict-eligible?deviceId=...`；仅将 ACTIVE 自动缓存标记为 EVICTED，并按未移除的 DOWNLOAD Intent 目标保护明确下载，返回清理数量、释放字节数和保护数量。不存在/撤销设备会拒绝操作。
 - Console：新增“清理可淘汰缓存”后台页面，执行前明确确认，真实展示服务端清理结果和保护目标数量。
 - 验证：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`1d43ba0c`、`f4b9a4fd`。
+
+## B20-06 保护明确保留的下载
+- 日期：2026-09-10
+- 实现：清理流程将未移除的 `DOWNLOAD` Intent 按 Resource/Attachment 作为保护目标；同目标 ACTIVE Cache Entry 不会被标记 EVICTED，已移除下载才允许对应缓存参与清理。撤销设备在查询保护目标前即拒绝。
+- Console：清理结果展示保护的明确下载数量，下载列表继续区分 `DOWNLOAD` 与 `CACHE`，用户可通过移除操作明确结束保护语义。
+- 验证：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`（2 tests passed，覆盖保护与撤销设备失败）；主要提交：`e8314d98`。
+
+## B20 离线读取与缓存（父 issue）
+- 整体验收：B20-01 至 B20-06 已按顺序完成，覆盖本机离线打开、离线状态展示、缓存复用、配额设置、可淘汰缓存清理和明确下载保护。
+- Console 对接：缓存与我的下载、缓存配额、清理可淘汰缓存页面均接入真实 API；IndexedDB/localForage 本机副本状态、配额使用量、清理结果和保护数量均可观察。
+- 验证证据：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`eb77877f`、`d43bbac5`、`1266f9b2`、`414cd688`、`1d43ba0c`、`e8314d98`。
