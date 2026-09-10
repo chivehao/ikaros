@@ -1861,3 +1861,9 @@
 - 实现：沿用 Game Asset 的 owner、Game 和 Attachment 归属校验，验证资料包必须引用当前用户可用的 Attachment，并支持绑定具体版本。
 - Console：游戏档案页新增资料包登记表单和列表，真实调用 `POST /api/games/{gameId}/assets`、`GET /api/games/{gameId}/assets`；资料包展示 Attachment、版本、类别和可用性。
 - 验证：game 模块测试 3/3；Console `pnpm typecheck`；主要提交：`bcac8f9e`。
+
+## B14-04 区分安装包、补丁和说明资料
+- 日期：2026-09-10
+- 实现：使用 Game Asset 的稳定类别枚举区分安装包、补丁、MOD、存档、说明资料、截图和其他资料，未引入字符串约定。
+- Console：资料包登记支持类别选择，列表将后端类别映射为中文显示名称，保留原始类别值用于 API 交互。
+- 验证：Console `pnpm typecheck`；主要提交：`86f9bc2e`。
