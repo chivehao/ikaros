@@ -1765,3 +1765,9 @@
 - 数据边界：相册删除仅清理相册及成员关系，Photo、Attachment、Blob 原始内容保留。
 - 验证证据：photo 模块测试 4/4；Console `pnpm typecheck`；应用打包成功并在 10000 端口启动，迁移版本已到 `202609101100`。
 - 主要提交：`992194dc`、`32d2c2eb`、`90cd730e`、`78fce8d1`、`9f0b81b0`。
+
+## B12-01 创建草稿
+- 日期：2026-09-10
+- 实现：创建文档时先创建对应 Resource，再建立 Document 和初始 Working Copy；Resource 创建失败不会写入文档数据。
+- Console：文档管理页真实调用 `POST /api/documents`，支持文章、文档和公开笔记草稿创建，并刷新列表与详情。
+- 验证：document 模块测试 3/3；Console 文档创建页 API 对接已审计；主要提交：`fc4c7100`。
