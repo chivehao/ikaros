@@ -1502,6 +1502,13 @@
 - 验证：`mvn -s .mvn-local-settings.xml -pl photo -am test` BUILD SUCCESS，Photo 测试 3/3（含 PNG→JPEG Handler）；Console `pnpm typecheck`、`pnpm build` 通过。
 - 主要提交：`437b4574`、`39cbb7f0`。GitHub issue 评论/关闭待认证恢复后同步。
 
+## B10-03 浏览原图
+- 日期：2026-09-10
+- 实现：Photo 详情页沿用 Attachment 的授权预览地址展示原图，并提供独立“打开原图”操作；页面只消费 `preview-url` 返回的短期地址，不接触 Provider object key 或物理路径。
+- Console：`/photos` 详情抽屉可预览原图并在新标签页打开原图；未返回授权地址时显示不可预览错误。
+- 验证：Console `pnpm typecheck` 通过；原图访问复用既有 `GET /attachments/{attachmentId}/preview-url` 授权链。GitHub issue 评论/关闭待认证恢复后同步。
+- 主要提交：`f1a072d1`。GitHub issue 评论/关闭待认证恢复后同步。
+
 ## C01-01/C01-02/C01-03/C01-05 Console 对接审计
 - `/sharing` 已改为只调用真实 `GET /shares`、`POST /shares` 和 `POST /shares/{id}/actions/revoke`；创建表单字段与 `CreateShareRequest` 对齐：`targetType`、`targetId`、`granteeType`、`granteeId`、`capabilities`、`expiresAt`。
 - 创建链接令牌时展示后端本次返回的 token，并提示仅在创建结果中保存；列表展示真实 Share Grant 字段和 ACTIVE/REVOKED 状态。
