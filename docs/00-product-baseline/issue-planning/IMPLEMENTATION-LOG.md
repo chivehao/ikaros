@@ -1495,6 +1495,13 @@
 - 验证：`mvn -s .mvn-local-settings.xml -pl photo -am test` BUILD SUCCESS，其中 `PersistentPhotoServiceTest` 2/2；Console `pnpm typecheck`、`pnpm build` 通过。application 各模块编译成功，最终 repackage 因运行中的 JAR 文件锁定未完成。
 - 主要提交：`04742f53`。GitHub issue 评论/关闭待认证恢复后同步。
 
+## B10-02 生成缩略图
+- 日期：2026-09-10
+- 实现：新增 `photo.thumbnail` 持久化后台任务；在 bounded-elastic 上读取授权原图，限制原图处理大小与 512px 最大边，生成 JPEG 后通过 Storage 派生写入契约落盘，再登记 `THUMBNAIL` 资产。原图读取失败、格式不支持或 Provider 不支持服务端写入时，任务失败且不修改原图。
+- Console：`/photos` 图片详情新增“生成缩略图”按钮，调用 `POST /photos/{id}/actions/generate-thumbnail`，轮询 `GET /background-tasks/{taskId}` 展示完成/失败/超时状态并重新加载资产列表。
+- 验证：`mvn -s .mvn-local-settings.xml -pl photo -am test` BUILD SUCCESS，Photo 测试 3/3（含 PNG→JPEG Handler）；Console `pnpm typecheck`、`pnpm build` 通过。
+- 主要提交：`437b4574`、`39cbb7f0`。GitHub issue 评论/关闭待认证恢复后同步。
+
 ## C01-01/C01-02/C01-03/C01-05 Console 对接审计
 - `/sharing` 已改为只调用真实 `GET /shares`、`POST /shares` 和 `POST /shares/{id}/actions/revoke`；创建表单字段与 `CreateShareRequest` 对齐：`targetType`、`targetId`、`granteeType`、`granteeId`、`capabilities`、`expiresAt`。
 - 创建链接令牌时展示后端本次返回的 token，并提示仅在创建结果中保存；列表展示真实 Share Grant 字段和 ACTIVE/REVOKED 状态。
