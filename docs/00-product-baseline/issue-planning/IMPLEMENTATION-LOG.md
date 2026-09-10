@@ -1682,6 +1682,12 @@
 - Console：ListenRoom 页面提交 `QUEUE_UPDATE` 控制命令，连接时通过事件 API 加载当前队列。
 - 验证：真实控制/事件 API 与页面路径已复验；主要提交：既有实现（本 issue 无新增代码）。
 
+## C04-02 同步当前歌曲
+- 日期：2026-09-10
+- 实现：当前歌曲通过 `TRACK_CHANGE` Room 控制事件广播，事件 sequence 是跨客户端读取顺序依据。
+- Console：ListenRoom 提供切歌 Payload 提交并回放事件，展示当前 sequence、状态版本和事件内容。
+- 验证：`TRACK_CHANGE` 控制与事件回放路径已复验；主要提交：既有实现（本 issue 无新增代码）。
+
 ## 媒体消费 Console API 对齐修复
 - `/media` 原页面把不存在于 `PlaybackHistoryView` 的标题、进度和删除能力渲染成可用操作；已改为仅展示 `/media/playback/history` 实际返回的 `resourceId`、`sessionId`、`startedAt`、`endedAt` 和 `watchedSeconds`。
 - 移除无后端契约支撑的“继续”“从历史中移除”和通用队列“保存顺序”伪入口；音乐播放/队列继续使用 `/music` 的真实 API 页面。
