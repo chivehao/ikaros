@@ -1641,6 +1641,12 @@
 - Console：一起看页面使用 `POST /api/rooms/{roomId}/control` 提交播放命令，并通过事件回放展示服务端状态。
 - 验证：控制 API 与 WatchRoom 页面已复验；主要提交：既有实现（本 issue 无新增代码）。
 
+## C03-02 同步播放和暂停
+- 日期：2026-09-10
+- 实现：播放/暂停作为带 `expectedStateVersion` 的 Room 控制命令写入事件事实，客户端按事件状态更新。
+- Console：WatchRoom 提供播放与暂停控制，成功后调用事件回放刷新当前 sequence/state version。
+- 验证：播放状态控制与事件 API 已复验；主要提交：既有实现（本 issue 无新增代码）。
+
 ## C04-01 至 C04-05 Console 对接审计
 - 新增 `/collaboration-center/listen`“一起听”页面，使用 `POST /rooms/{roomId}/control` 提交 `QUEUE_UPDATE`、`TRACK_CHANGE` 和 `PLAY_STATE`，由后端校验成员控制权限与状态版本。
 - 页面使用 `GET /rooms/{roomId}/events?afterSequence=...` 增量同步队列/歌曲/播放状态，并每 5 秒轮询，覆盖断线后按 sequence 恢复。
