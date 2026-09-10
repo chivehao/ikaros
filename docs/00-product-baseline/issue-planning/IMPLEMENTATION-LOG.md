@@ -1537,6 +1537,7 @@
 - 服务端未发生变更时直接采用本地内容；双方均变更时返回 `<<<<<<< LOCAL` / `=======` / `>>>>>>> SERVER` 冲突标记，不静默覆盖，也不自动保存合并结果。
 - `/documents/editor` 在工作副本保存返回 409 时自动请求合并结果，将结果放回编辑器供用户人工处理后再保存。
 - 验证：`DocumentMergeServiceTest` 2/2；Console `pnpm typecheck`、`pnpm build` 通过；后端 compile BUILD SUCCESS；主要提交：`d03d7d8c`、`e2c551d5`。
+- 本轮复验（2026-09-10）：document 模块全量回归 2/2 通过；`Editor.vue` 已核对真实文档列表、工作副本读写、`expectedVersion` 冲突合并、Presence 心跳/查询/离开 API。持久化 Presence 与工作副本的 PostgreSQL 集成测试仍需 Testcontainers。
 
 ## A21-01 元数据同步来源配置
 - 日期：2026-09-10
