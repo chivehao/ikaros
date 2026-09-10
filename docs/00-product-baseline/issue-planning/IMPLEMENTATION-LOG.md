@@ -1818,3 +1818,9 @@
 - 实现：恢复指定 Revision 时创建新的不可变 Revision，并同步 Document 当前 revision 与 Working Copy；原历史 Revision 保持不变。
 - Console：版本列表提供带确认的真实恢复操作，恢复完成后刷新版本列表并提示新当前版本已创建。
 - 验证：document 模块测试 9/9；Console `pnpm typecheck`；主要提交：`12e18411`。
+
+## B13-04 发布草稿
+- 日期：2026-09-10
+- 实现：发布动作校验目标 Revision 属于当前用户文档，并将 Publication 固定绑定到该不可变 Revision。
+- Console：版本列表提供 slug 输入和真实 `POST /api/documents/{documentId}/actions/publish` 发布操作，发布结果明确反馈。
+- 验证：document 模块测试 10/10；Console `pnpm typecheck`；主要提交：`e14ef1f3`。
