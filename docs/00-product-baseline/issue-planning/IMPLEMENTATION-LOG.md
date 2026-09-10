@@ -2025,3 +2025,9 @@
 - 实现：沿用服务端 `RESOLVED`/`DISMISSED` 状态转换，保留冲突记录及其双方版本信息，处理结果可重新查询。
 - Console：同步冲突页的解决/忽略操作增加明确确认和成功反馈，真实调用 `POST /api/drive/conflicts/{conflictId}/resolve` 后刷新列表。
 - 验证：Console `pnpm typecheck`；主要提交：`b0b2fb81`。
+
+## B18-05 按规则传播删除
+- 日期：2026-09-10
+- 实现：修正设备 `TRASH` mutation 的删除策略门禁：仅 binding 的 `PROPAGATE` 允许传播到远端；`KEEP_REMOTE`/其他策略返回 `DELETE_POLICY_BLOCKED` 逐项结果且不改变节点状态。Default Drive 回归测试覆盖阻止分支。
+- Console：设备变更上传页展示当前删除策略和阻止原因，继续通过真实 mutations 接口观察逐项应用结果。
+- 验证：drive 模块测试 9/9；Console `pnpm typecheck`；主要提交：`fef11578`。
