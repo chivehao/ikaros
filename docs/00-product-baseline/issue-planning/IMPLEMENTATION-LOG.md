@@ -1515,6 +1515,7 @@
 - 新增 `/collaboration-center/listen`“一起听”页面，使用 `POST /rooms/{roomId}/control` 提交 `QUEUE_UPDATE`、`TRACK_CHANGE` 和 `PLAY_STATE`，由后端校验成员控制权限与状态版本。
 - 页面使用 `GET /rooms/{roomId}/events?afterSequence=...` 增量同步队列/歌曲/播放状态，并每 5 秒轮询，覆盖断线后按 sequence 恢复。
 - 验证：Console typecheck 通过；主要提交：`d42ae610`。
+- 本轮复验（2026-09-10）：`ListenRoom.vue` 已核对真实 Room Event 增量同步与 `QUEUE_UPDATE`、`TRACK_CHANGE`、`PLAY_STATE` 控制命令，均携带当前 `expectedStateVersion`；页面按 sequence 恢复状态。sharing 模块无自动化测试源，后端联调证据待补。
 
 ## 媒体消费 Console API 对齐修复
 - `/media` 原页面把不存在于 `PlaybackHistoryView` 的标题、进度和删除能力渲染成可用操作；已改为仅展示 `/media/playback/history` 实际返回的 `resourceId`、`sessionId`、`startedAt`、`endedAt` 和 `watchedSeconds`。
