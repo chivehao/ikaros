@@ -1812,3 +1812,9 @@
 - 实现：新增 `GET /api/documents/{documentId}/revisions/compare`，按两个 Revision Number 返回逐行 `UNCHANGED/REMOVED/ADDED` 差异，并校验文档归属及版本存在性。
 - Console：文档详情版本列表新增基准/目标版本选择和真实差异展示，删除或修改版本不会影响不可变 Revision。
 - 验证：document 模块测试 8/8；Console `pnpm typecheck`；`git diff --check`；主要提交：`1f5a4585`。
+
+## B13-03 恢复指定版本
+- 日期：2026-09-10
+- 实现：恢复指定 Revision 时创建新的不可变 Revision，并同步 Document 当前 revision 与 Working Copy；原历史 Revision 保持不变。
+- Console：版本列表提供带确认的真实恢复操作，恢复完成后刷新版本列表并提示新当前版本已创建。
+- 验证：document 模块测试 9/9；Console `pnpm typecheck`；主要提交：`12e18411`。
