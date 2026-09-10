@@ -1972,3 +1972,9 @@
 - 实现：使用 Drive Sync Binding 的 BACKUP 模式，按设备、Drive Space、稳定本地 Scope 和空间根节点建立单向备份配置，并保留删除/冲突策略。
 - Console：新增“备份目录”后台页面，真实读取设备、Drive Space、已有 binding，提交 `POST /api/drive/bindings`，不把本地显示路径当作服务端物理路径。
 - 验证：Console `pnpm typecheck`；主要提交：`2e37cab3`。
+
+## B17-03 执行首次备份
+- 日期：2026-09-10
+- 实现：复用 Drive Sync Binding 已有的 `full-resync` 命令，将备份绑定游标归零并交给同步流程重新扫描，不在 Console 伪造备份结果。
+- Console：备份目录页新增 BACKUP 绑定选择器和“提交首次备份”按钮，真实调用 `POST /api/drive/bindings/{bindingId}/full-resync`，提交后刷新持久化绑定状态。
+- 验证：Console `pnpm typecheck`；主要提交：`97c16557`。
