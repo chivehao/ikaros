@@ -1449,6 +1449,7 @@
 - B08-05：歌词区调用 `GET /music/tracks/{trackId}/lyrics`，展示加载、空结果、版本和错误。
 - B08-06：页面启动调用 `GET /music/playback/sessions`，恢复时重新读取 Audio Source 和预览 URL，不复用失效地址。
 - 验证：音乐库页 `/music` 返回 HTTP 200，Console typecheck/build 已通过。
+- 本轮复验（2026-09-10）：music 模块全量回归 28/28 通过，其中播放 4/4、队列 4/4、播放列表相关路径均通过；`Catalog.vue` 已核对真实 Audio Source/Session、Queue Entry/Policy、歌词和活跃会话 API，恢复时重新获取授权预览地址。真实音频播放联调仍需外部附件样本。
 
 ## B09-01 创建和编辑列表
 - 日期：2026-09-10
