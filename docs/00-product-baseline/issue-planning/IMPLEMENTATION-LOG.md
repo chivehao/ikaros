@@ -1580,6 +1580,12 @@
 - Console 对接：分享协作页和验证分享页均接入真实 Share Grant API，创建、列表、撤销、兑换均有加载/成功/失败反馈，不使用静态分享数据。
 - 验证证据：sharing Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：`60b76efc`、`8800aae8`。
 
+## C02-01 创建房间
+- 日期：2026-09-10
+- 实现：复用 Room 持久化创建接口，支持 WATCH/LISTEN 等类型、Resource/Collection 目标、可见性和过期时间；服务端校验目标权限并建立房主成员关系。
+- Console：Room 管理页真实调用 `POST /api/rooms`，创建后刷新 `GET /api/rooms` 并自动加载成员；空字段、目标不存在和权限失败均有反馈。
+- 验证：sharing 模块 Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：`6feb874d`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
