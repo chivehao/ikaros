@@ -1727,6 +1727,12 @@
 - Console：协作编辑页真实读取/保存 Working Copy，409 时显示冲突提示并进入合并路径。
 - 验证：`PersistentDocumentServiceTest` 覆盖版本变化拒绝；Console typecheck/build；主要提交：`6232c405`。
 
+## C05-02 展示在线协作者
+- 日期：2026-09-10
+- 实现：Document Presence 使用 owner-scoped client ID 和 30 秒 TTL，独立于文档版本真相。
+- Console：编辑页每 10 秒调用 `PUT/GET /api/documents/{documentId}/presence`，展示在线协作者数量，卸载时 best-effort 删除 Presence。
+- 验证：Presence API、TTL 和失败提示已复验；主要提交：`1771997c`、`ee2a054`。
+
 ## C05-02 Console 对接审计
 - `document` 新增 owner-scoped Presence 心跳、查询和离开 API：`PUT/GET/DELETE /documents/{documentId}/presence`，Presence 使用 30 秒短 TTL，不写入文档版本真相。
 - `/documents/editor` 每 10 秒发送心跳并刷新在线人数，组件卸载时 best-effort 离开；Presence 请求失败显示可见错误。
