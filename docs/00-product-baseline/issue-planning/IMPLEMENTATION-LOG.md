@@ -2130,3 +2130,9 @@
 - 实现：沿用认证模块 `POST /api/auth/login` 的 JWT 登录链路和 Resource Owner 权限校验；资源列表继续使用分页 `GET /api/resources`，服务端负责过滤无权资源。
 - Console：登录页保持移动端响应式布局；统一资源库在窄屏切换为可点击资源卡片，在桌面端保留表格，搜索、类型筛选、加载、空结果、403 权限失败和资源详情跳转共用真实 API。
 - 验证：Console `pnpm typecheck`；主要提交：`af514acb`。
+
+## B21-02 桌面端文件选择与上传
+- 日期：2026-09-10
+- 实现：复用已有附件上传闭环：浏览器选择 File、计算 SHA-256、创建带 `Idempotency-Key` 的 Upload Intent、向 Provider 上传对象，再调用 Attachment Commit；中断时可终止上传会话。
+- Console：现有“附件与 Blob”页面已接入上述真实 API，提供桌面文件选择、Provider/角色选择、上传进度状态和失败/终止反馈，无需新增重复页面。
+- 验证：运行应用 OpenAPI 暴露 `/api/resources/{resourceId}/attachments/upload-intents`、`/commit` 和会话终止路径；Console `pnpm typecheck` 已通过；主要提交：既有实现（本 issue 无新增代码）。
