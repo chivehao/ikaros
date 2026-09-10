@@ -1735,3 +1735,9 @@
 - 实现：新增相册编辑 API，按 owner 校验相册归属，名称非空并 trim；更新使用 `If-Match`/版本校验并返回新的 ETag，冲突返回 412。
 - Console：照片管理页新增相册创建/编辑表单和真实 `GET/POST/PATCH /api/photos/albums` 对接，展示版本并处理并发冲突。
 - 验证：photo 模块测试 3/3；Console `pnpm typecheck`、`pnpm build`；主要提交：`992194dc`。
+
+## B11-02 添加与移除图片
+- 日期：2026-09-10
+- 实现：沿用相册与 Photo 的 owner 授权边界，提供相册成员查询、添加和移除；数据库唯一约束防止同一图片重复加入相册。
+- Console：照片管理页选中相册后通过真实 `GET/POST/DELETE /api/photos/albums/{albumId}/photos` 管理成员，展示加载、空状态、错误和移除操作。
+- 验证：photo 模块测试 4/4（含相册版本冲突）；Console `pnpm typecheck`；主要提交：`32d2c2eb`。
