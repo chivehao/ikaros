@@ -1771,3 +1771,9 @@
 - 实现：创建文档时先创建对应 Resource，再建立 Document 和初始 Working Copy；Resource 创建失败不会写入文档数据。
 - Console：文档管理页真实调用 `POST /api/documents`，支持文章、文档和公开笔记草稿创建，并刷新列表与详情。
 - 验证：document 模块测试 3/3；Console 文档创建页 API 对接已审计；主要提交：`fc4c7100`。
+
+## B12-02 编辑并保存内容
+- 日期：2026-09-10
+- 实现：Working Copy 按服务端版本校验后保存内容和 Schema 版本，版本不匹配拒绝静默覆盖。
+- Console：协作编辑页真实读取并保存 Working Copy，显示当前版本、保存结果和错误状态。
+- 验证：document 模块测试 4/4；Console 编辑页 API 对接已审计；主要提交：`ad6e65fe`。
