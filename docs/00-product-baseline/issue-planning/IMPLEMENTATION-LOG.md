@@ -1966,3 +1966,9 @@
 - 实现：沿用 Sync Device 的用户归属、安装标识幂等更新和设备信任状态模型。
 - Console：新增“同步设备”后台页面，真实调用 `GET /api/sync/devices`、`POST /api/sync/devices` 和设备撤销接口，展示安装标识、平台、版本和信任状态；设备注册与同步绑定分开呈现。
 - 验证：sync 模块测试通过；Console `pnpm typecheck`；主要提交：`ed5f11c7`。
+
+## B17-02 配置备份目录
+- 日期：2026-09-10
+- 实现：使用 Drive Sync Binding 的 BACKUP 模式，按设备、Drive Space、稳定本地 Scope 和空间根节点建立单向备份配置，并保留删除/冲突策略。
+- Console：新增“备份目录”后台页面，真实读取设备、Drive Space、已有 binding，提交 `POST /api/drive/bindings`，不把本地显示路径当作服务端物理路径。
+- 验证：Console `pnpm typecheck`；主要提交：`2e37cab3`。
