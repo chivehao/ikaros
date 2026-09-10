@@ -1836,3 +1836,10 @@
 - 实现：新增按 owner 校验的 `GET /api/documents/{documentId}/publication` 查询，返回 Publication 状态、slug、绑定 Revision 和发布时间。
 - Console：文档详情真实加载并展示 PUBLISHED/UNPUBLISHED/未发布状态、slug 与绑定版本。
 - 验证：document 模块测试 12/12；Console `pnpm typecheck`；主要提交：`8f74d10b`。
+
+## B13 文档版本与发布（父 issue）
+- 整体验收：B13-01 至 B13-06 已按顺序完成，覆盖版本列表、版本差异、指定版本恢复、发布、撤回发布和发布状态展示。
+- 数据边界：历史 Revision 不可变；恢复创建新 Revision；Publication 始终绑定明确 Revision；撤回只更新 Publication 状态。
+- Console 对接：文档管理详情真实接入版本查询、差异比较、恢复、发布、撤回和状态查询 API。
+- 验证证据：document 模块测试 12/12；Console `pnpm typecheck`；application 打包成功并启动在 10000 端口；OpenAPI 已包含 B13 相关路径。
+- 主要提交：`a04407dd`、`1f5a4585`、`12e18411`、`e14ef1f3`、`750dc9b4`、`8f74d10b`。
