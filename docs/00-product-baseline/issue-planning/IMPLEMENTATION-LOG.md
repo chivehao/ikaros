@@ -1733,6 +1733,12 @@
 - Console：编辑页每 10 秒调用 `PUT/GET /api/documents/{documentId}/presence`，展示在线协作者数量，卸载时 best-effort 删除 Presence。
 - 验证：Presence API、TTL 和失败提示已复验；主要提交：`1771997c`、`ee2a054`。
 
+## C05-03 断线后重新合并
+- 日期：2026-09-10
+- 实现：服务端提供保守三方合并，基于基线、本地内容和当前服务端副本；冲突返回明确标记，不自动覆盖或保存。
+- Console：工作副本保存遇到 409 时调用 `POST /api/documents/{documentId}/working-copy/actions/merge`，把合并结果放回编辑器供人工确认。
+- 验证：`DocumentMergeServiceTest` 2/2；document 模块回归 2/2；主要提交：`d03d7d8c`、`e2c551d5`。
+
 ## C05-02 Console 对接审计
 - `document` 新增 owner-scoped Presence 心跳、查询和离开 API：`PUT/GET/DELETE /documents/{documentId}/presence`，Presence 使用 30 秒短 TTL，不写入文档版本真相。
 - `/documents/editor` 每 10 秒发送心跳并刷新在线人数，组件卸载时 best-effort 离开；Presence 请求失败显示可见错误。
