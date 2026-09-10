@@ -1984,3 +1984,9 @@
 - 实现：复用 Drive 的 Camera Backup 状态机和持久化查询/更新接口，检测记录以稳定 `sourceItemId` 和内容指纹区分新增或修改文件，并由服务端校验 BACKUP 绑定归属及状态转换。
 - Console：新增“备份文件检测”后台页面，真实调用 `GET /api/drive/bindings/{bindingId}/camera-backups` 和 `PUT /api/drive/bindings/{bindingId}/camera-backups`，支持登记检测状态、刷新结果、展示远端节点和更新时间。
 - 验证：Console `pnpm typecheck`；主要提交：`9edd6ce3`。
+
+## B17-05 恢复中断备份
+- 日期：2026-09-10
+- 实现：复用 Sync Binding 的服务端 resume 命令，将暂停或降级的绑定恢复到活动状态，保留已有游标和逐文件持久化结果。
+- Console：备份目录页新增“恢复中断备份”操作，真实调用 `POST /api/drive/bindings/{bindingId}/resume`，成功后刷新绑定状态。
+- 验证：Console `pnpm typecheck`；主要提交：`661cd358`。
