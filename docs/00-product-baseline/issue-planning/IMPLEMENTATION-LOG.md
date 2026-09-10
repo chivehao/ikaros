@@ -1800,3 +1800,9 @@
 - 整体验收：B12-01 至 B12-05 已按顺序完成，覆盖草稿创建、Working Copy 保存、资源附件引用、编辑冲突提示和本地草稿恢复。
 - Console 对接：文档管理页与协作编辑页均使用真实 `/api/documents` API；附件引用使用真实 `GET/POST/DELETE /api/documents/{documentId}/embeds` API。
 - 验证证据：document 模块测试 6/6；Console `pnpm typecheck`；主要提交：`fc4c7100`、`ad6e65fe`、`28d76975`、`2c8ff5e3`、`4045b193`。
+
+## B13-01 查看版本列表
+- 日期：2026-09-10
+- 实现：复用 Document Revision 查询 API，按服务端 `revision_number DESC` 返回当前用户文档的已提交版本，并补充 owner 边界和顺序测试。
+- Console：文档管理详情抽屉真实调用 `GET /api/documents/{documentId}/revisions`，展示版本号、Schema、创建时间和创建者，并支持刷新。
+- 验证：document 模块测试 7/7；Console `pnpm typecheck`；主要提交：`a04407dd`。
