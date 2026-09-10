@@ -1925,3 +1925,9 @@
 - 实现：新增按 owner 校验的节点查询，Console 获取当前 `nodeVersion` 后创建新的不可变 Drive Revision，并更新文件当前版本；支持内容指纹和 operationId 幂等字段。
 - Console：文件详情页新增“上传新文件版本”表单，真实调用 `GET /api/drive/nodes/{nodeId}`、`POST /api/drive/nodes/{nodeId}/revisions`，409 时提示版本冲突。
 - 验证：drive 模块测试 7/7；Console `pnpm typecheck`；主要提交：`05b7b7c1`。
+
+## B16-02 查看历史版本
+- 日期：2026-09-10
+- 实现：沿用 owner-scoped Revision 查询并按 revision number 倒序返回，历史 Revision 保持不可变。
+- Console：文件详情页展示当前 Revision、历史版本数、当前 Attachment、内容指纹和完整 Revision History 表格。
+- 验证：Console `pnpm typecheck`；主要提交：`383047dc`。
