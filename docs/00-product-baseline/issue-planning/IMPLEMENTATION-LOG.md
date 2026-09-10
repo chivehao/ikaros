@@ -1890,3 +1890,9 @@
 - 实现：新增 `GET /api/drive/spaces/{spaceId}/children/page` 分页契约，返回统一 `PageResponse`，保留 owner 校验和稳定名称排序。
 - Console：个人云盘节点列表真实读取分页 `items`、`total`、`page`、`size`，支持页码、每页数量切换和刷新后保持真实数据。
 - 验证：drive 模块测试 7/7；Console `pnpm typecheck`；主要提交：`6156ea9a`。
+
+## B15-03 重命名文件
+- 日期：2026-09-10
+- 实现：复用 Drive 节点重命名 API，并以 `If-Match`/`expectedVersion` 传递节点版本，保留 owner 校验、名称规范化和同目录冲突处理。
+- Console：个人云盘节点列表新增重命名对话框，成功后刷新当前页，409 并发冲突提示用户重新加载。
+- 验证：Console `pnpm typecheck`；主要提交：`4c28a460`。
