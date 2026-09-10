@@ -2124,3 +2124,9 @@
 - 整体验收：B20-01 至 B20-06 已按顺序完成，覆盖本机离线打开、离线状态展示、缓存复用、配额设置、可淘汰缓存清理和明确下载保护。
 - Console 对接：缓存与我的下载、缓存配额、清理可淘汰缓存页面均接入真实 API；IndexedDB/localForage 本机副本状态、配额使用量、清理结果和保护数量均可观察。
 - 验证证据：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`eb77877f`、`d43bbac5`、`1266f9b2`、`414cd688`、`1d43ba0c`、`e8314d98`。
+
+## B21-01 移动端登录与资源浏览
+- 日期：2026-09-10
+- 实现：沿用认证模块 `POST /api/auth/login` 的 JWT 登录链路和 Resource Owner 权限校验；资源列表继续使用分页 `GET /api/resources`，服务端负责过滤无权资源。
+- Console：登录页保持移动端响应式布局；统一资源库在窄屏切换为可点击资源卡片，在桌面端保留表格，搜索、类型筛选、加载、空结果、403 权限失败和资源详情跳转共用真实 API。
+- 验证：Console `pnpm typecheck`；主要提交：`af514acb`。
