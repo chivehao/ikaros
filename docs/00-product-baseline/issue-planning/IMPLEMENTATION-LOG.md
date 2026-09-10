@@ -1659,6 +1659,12 @@
 - Console：控制请求只提交命令和当前状态版本，权限失败直接显示服务端错误，不在前端伪造成功状态。
 - 验证：`RoomControlController`/服务实现与 WatchRoom 控制路径已复验；主要提交：既有实现（本 issue 无新增代码）。
 
+## C03-05 断线重连恢复状态
+- 日期：2026-09-10
+- 实现：Room 事件使用递增 sequence，客户端重连后按 `afterSequence` 增量回放，不依赖内存状态补偿。
+- Console：WatchRoom 每 5 秒同步事件，重连/刷新时继续从当前 sequence 拉取并恢复播放状态版本；网络和服务端错误均有反馈。
+- 验证：`GET /api/rooms/{roomId}/events?afterSequence=...` 与页面重连轮询已复验；主要提交：既有实现（本 issue 无新增代码）。
+
 ## C04-01 至 C04-05 Console 对接审计
 - 新增 `/collaboration-center/listen`“一起听”页面，使用 `POST /rooms/{roomId}/control` 提交 `QUEUE_UPDATE`、`TRACK_CHANGE` 和 `PLAY_STATE`，由后端校验成员控制权限与状态版本。
 - 页面使用 `GET /rooms/{roomId}/events?afterSequence=...` 增量同步队列/歌曲/播放状态，并每 5 秒轮询，覆盖断线后按 sequence 恢复。
