@@ -1777,3 +1777,9 @@
 - 实现：Working Copy 按服务端版本校验后保存内容和 Schema 版本，版本不匹配拒绝静默覆盖。
 - Console：协作编辑页真实读取并保存 Working Copy，显示当前版本、保存结果和错误状态。
 - 验证：document 模块测试 4/4；Console 编辑页 API 对接已审计；主要提交：`ad6e65fe`。
+
+## B12-03 插入资源附件
+- 日期：2026-09-10
+- 实现：复用 Document Embed API 管理文档与 Attachment 的引用关系；移除 Embed 不删除 Attachment 本身。
+- Console：协作编辑页真实调用 `GET/POST/DELETE /api/documents/{documentId}/embeds`，支持插入、查看和移除资源附件引用。
+- 验证：document 模块测试 5/5；Console `pnpm typecheck`；主要提交：`28d76975`。
