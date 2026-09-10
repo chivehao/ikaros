@@ -1480,6 +1480,7 @@
 - 整体验收：B09-01 至 B09-04 已逐项完成；播放列表创建/编辑、歌曲增删、顺序调整和指定位置播放均有 Console `/music` 入口并调用公开 API，列表修改不触碰歌曲原件。
 - 验证证据：四个子任务的自动化测试、Console typecheck/build、application package 和运行时认证/路由检查均已记录；运行时 Console `/music` 返回 200，相关 API 未认证请求按预期返回 401。
 - 主要提交：`55830c41`、`232b064a`、`e26a9d21`、`bc7a08f2`。
+- 本轮复验（2026-09-10）：music 模块全量回归 28/28 通过，其中 `PersistentMusicPlaylistServiceTest` 7/7 覆盖创建/编辑、歌曲增删、完整顺序校验和并发版本；`Catalog.vue` 已核对列表管理真实 API 与指定位置播放链路。真实音频播放联调仍需外部附件样本。
 ## B09 Console 对接逐项审计
 - B09-01：播放列表表单通过 `POST/PATCH /music/playlists` 创建和编辑，编辑携带版本/`If-Match`，保存后重新加载列表。
 - B09-02：列表歌曲区通过 `GET/POST /music/playlists/{id}/entries` 和 `DELETE /music/playlists/entries/{id}` 完成加载、添加和移除。
