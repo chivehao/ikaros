@@ -1729,3 +1729,9 @@
 ## B01 视频与剧集管理（父 issue）
 - 整体验收：B01-01 至 B01-05 已逐项完成本地核验/审计，覆盖视频条目创建、剧集顺序、播放附件、字幕/封面和附件可用状态；Console `/media/video` 已提供对应真实 API 操作入口。
 - 验证证据：`PersistentMediaCatalogServiceTest` 4/4、`PersistentMediaReleaseServiceTest` 2/2、`PersistentMediaTechnicalMetadataServiceTest` 2/2；Console 视频页 API 对接已审计。
+
+## B11-01 创建和编辑相册
+- 日期：2026-09-10
+- 实现：新增相册编辑 API，按 owner 校验相册归属，名称非空并 trim；更新使用 `If-Match`/版本校验并返回新的 ETag，冲突返回 412。
+- Console：照片管理页新增相册创建/编辑表单和真实 `GET/POST/PATCH /api/photos/albums` 对接，展示版本并处理并发冲突。
+- 验证：photo 模块测试 3/3；Console `pnpm typecheck`、`pnpm build`；主要提交：`992194dc`。
