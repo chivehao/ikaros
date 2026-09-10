@@ -1557,6 +1557,12 @@
 - Console：创建分享页支持链接令牌、指定用户、访客会话三种授予方式；指定用户必须填写用户 ID，并可配置 `read`/`download` 等能力。
 - 验证：非法授予参数由表单和服务端共同拒绝，真实分享列表保留授予方式与能力；主要提交：`60b76efc`。
 
+## C01-04 展示访问失败原因
+- 日期：2026-09-10
+- 实现：兑换接口将无效、过期、撤销和无权访问作为服务端授权失败返回，客户端不自行放行。
+- Console：验证分享页真实调用 `POST /api/shares/redeem?token=...`，将服务端 `detail`/HTTP 错误展示给操作者，并区分加载、成功和失败状态。
+- 验证：`Redeem.vue` 已复验失效、过期和撤销令牌错误展示路径；主要提交：`8800aae8`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
