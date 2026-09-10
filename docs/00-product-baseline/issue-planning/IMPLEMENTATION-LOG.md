@@ -2072,3 +2072,14 @@
 - 实现：沿用 Download Intent 的 `DOWNLOAD`/`COMPLETED` 语义，已下载内容与可淘汰 CACHE 记录保持区分。
 - Console：缓存与我的下载页新增“仅显示已完成的明确下载”筛选，真实读取 `/api/offline/downloads` 后展示 Resource、Attachment、类型、状态和创建时间。
 - 验证：Console `pnpm typecheck`；主要提交：`1ef8ba26`。
+
+## B19-06 移除指定下载
+- 日期：2026-09-10
+- 实现：沿用服务端 Download Intent 的 REMOVED 生命周期，移除下载记录不删除服务端 Resource 或 Blob。
+- Console：下载列表新增明确下载“移除”操作，带确认提示，真实调用 `DELETE /api/offline/downloads/{intentId}` 后刷新列表。
+- 验证：Console `pnpm typecheck`；主要提交：`04631a51`。
+
+## B19 下载管理（父 issue）
+- 整体验收：B19-01 至 B19-06 已按顺序完成，覆盖任务创建、暂停/继续、取消、Manifest 完整性校验、已下载内容查看和指定下载移除。
+- Console 对接：缓存与我的下载、下载完整性页面均已接入真实 Offline API，区分明确下载与 CACHE，展示持久化状态和失败/校验依据。
+- 验证证据：sync 模块编译测试通过；Console `pnpm typecheck`；主要提交：`01dc5dce`、`6a988afb`、`de956cb7`、`1319fe6b`、`1ef8ba26`、`04631a51`。
