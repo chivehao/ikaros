@@ -1931,3 +1931,9 @@
 - 实现：沿用 owner-scoped Revision 查询并按 revision number 倒序返回，历史 Revision 保持不可变。
 - Console：文件详情页展示当前 Revision、历史版本数、当前 Attachment、内容指纹和完整 Revision History 表格。
 - 验证：Console `pnpm typecheck`；主要提交：`383047dc`。
+
+## B16-03 恢复历史版本
+- 日期：2026-09-10
+- 实现：新增按 owner 和 revision number 恢复接口；恢复只切换文件当前 Revision、递增节点版本并记录变更，不修改或删除历史 Revision。
+- Console：文件详情页新增历史版本恢复按钮，当前版本禁用；恢复前确认，提交带 If-Match，成功后刷新当前版本和历史列表。
+- 验证：drive 模块测试 7/7；Console `pnpm typecheck`；主要提交：`020942de`。
