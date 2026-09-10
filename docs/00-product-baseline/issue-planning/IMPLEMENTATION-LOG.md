@@ -1569,6 +1569,12 @@
 - Console：分享列表仅对 ACTIVE 记录显示“撤销”，调用 `POST /api/shares/{id}/actions/revoke` 后刷新列表并展示 REVOKED 状态。
 - 验证：撤销按钮有状态保护和失败反馈；主要提交：`60b76efc`。
 
+## C01-06 检查撤销后的内容访问
+- 日期：2026-09-10
+- 实现：兑换路径每次都由服务端重新验证 Share Grant 状态，因此撤销后不会继续获得目标授权。
+- Console：验证分享页可重新输入同一 token；撤销后调用 `POST /api/shares/redeem` 展示服务端失败原因，不保留旧成功结果作为可访问凭据。
+- 验证：`Redeem.vue` 真实兑换路径与撤销状态错误反馈已复验；主要提交：`8800aae8`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
