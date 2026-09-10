@@ -1523,6 +1523,13 @@
 - 验证：`mvn -s .mvn-local-settings.xml -pl photo -am test` BUILD SUCCESS，Photo 测试 3/3；Console `pnpm typecheck` 通过。GitHub issue 评论/关闭待认证恢复后同步。
 - 主要提交：`e3d2056d`。GitHub issue 评论/关闭待认证恢复后同步。
 
+## B10 图片浏览与派生图
+- 日期：2026-09-10
+- 子任务验收：B10-01 至 B10-05 已逐项完成；图片登记、元数据、原图授权预览、缩略图生成、失败状态和失败重试均有公开 API 与 Console `/photos` 入口。
+- 整体不变量：原图 Attachment 与 `THUMBNAIL` Derived Attachment 分离；缩略图生成在后台任务中执行，失败不修改原图；原图访问继续经过 Attachment 权限与短期预览授权。
+- 验证：Photo 测试 3/3；Storage `-pl storage -am compile` BUILD SUCCESS；Console typecheck/build 通过；新 JAR package BUILD SUCCESS；应用已用 local profile 启动，R2DBC migration 成功并监听 10000，OpenAPI 路由存在，Console 8848 返回 200。
+- 主要提交：`437b4574`、`39cbb7f0`、`d2060c81`、`e3d2056d`、`f1a072d1`。GitHub issue 评论/关闭待认证恢复后同步。
+
 ## C01-01/C01-02/C01-03/C01-05 Console 对接审计
 - `/sharing` 已改为只调用真实 `GET /shares`、`POST /shares` 和 `POST /shares/{id}/actions/revoke`；创建表单字段与 `CreateShareRequest` 对齐：`targetType`、`targetId`、`granteeType`、`granteeId`、`capabilities`、`expiresAt`。
 - 创建链接令牌时展示后端本次返回的 token，并提示仅在创建结果中保存；列表展示真实 Share Grant 字段和 ACTIVE/REVOKED 状态。
