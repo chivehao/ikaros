@@ -22,7 +22,7 @@ public class PersistentOfflineCacheService implements OfflineCacheService {
     @Override public Mono<OfflineCacheEvictionView> evictEligible(UUID user, UUID device) {
         return devices.isUsable(user, device).filter(Boolean.TRUE::equals)
             .switchIfEmpty(Mono.error(new ConflictException("Device 不存在或已撤销")))
-            .then(protectedDownloadKeys(user, device))
+            .then(Mono.defer(() -> protectedDownloadKeys(user, device)))
             .flatMap(protectedKeys -> entries.findAllByUserIdAndDeviceIdOrderByLastAccessedAtDesc(user, device)
                 .filter(e -> e.state() == CacheEntryState.ACTIVE)
                 .filter(e -> !protectedKeys.contains(new CacheKey(e.resourceId(), e.attachmentId())))
