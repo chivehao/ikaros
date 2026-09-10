@@ -1741,3 +1741,9 @@
 - 实现：沿用相册与 Photo 的 owner 授权边界，提供相册成员查询、添加和移除；数据库唯一约束防止同一图片重复加入相册。
 - Console：照片管理页选中相册后通过真实 `GET/POST/DELETE /api/photos/albums/{albumId}/photos` 管理成员，展示加载、空状态、错误和移除操作。
 - 验证：photo 模块测试 4/4（含相册版本冲突）；Console `pnpm typecheck`；主要提交：`32d2c2eb`。
+
+## B11-03 调整图片顺序
+- 日期：2026-09-10
+- 实现：为相册成员增加持久化顺序字段，新增重排 API；后端要求请求包含相册全部且不重复的 Photo ID，拒绝部分或非法集合。
+- Console：选中相册后展示按服务端顺序排列的图片，并通过真实重排 API 提供上移/下移操作。
+- 验证：photo 模块测试 4/4；Console `pnpm typecheck`；主要提交：`90cd730e`。
