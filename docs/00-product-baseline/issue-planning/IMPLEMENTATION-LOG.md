@@ -1545,6 +1545,12 @@
 - Console：分享协作页真实调用 `POST /api/shares`，创建成功展示本次返回的 token，并刷新 `GET /api/shares` 列表；非法目标、空字段和权限失败显示错误。
 - 验证：sharing 模块 Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：`60b76efc`。
 
+## C01-02 设置有效期
+- 日期：2026-09-10
+- 实现：分享创建请求携带 RFC 3339 `expiresAt`，服务端将有效期持久化并在后续访问授权时判断是否过期。
+- Console：创建分享表单使用日期时间选择器，提交前要求有效期，列表展示真实过期时间。
+- 验证：`CreateShareRequest` 与 Console 字段对齐，sharing Maven 构建及 Console typecheck/build 已复验；主要提交：`60b76efc`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
