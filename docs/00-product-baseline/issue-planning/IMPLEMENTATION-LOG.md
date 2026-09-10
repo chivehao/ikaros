@@ -2007,3 +2007,9 @@
 - 实现：沿用 Drive Change Log 的空间序列和 Sync Binding cursor，按 `afterSequence` 拉取最多 100 条变更，并通过服务端校验后持久化推进游标，禁止回退。
 - Console：新增“服务端变更”后台页面，真实调用 `GET /api/drive/spaces/{spaceId}/changes` 和 `POST /api/drive/bindings/{bindingId}/cursor`，支持选择同步配置、查看节点/版本变更并确认处理进度。
 - 验证：Console `pnpm typecheck`；主要提交：`71927cc0`。
+
+## B18-02 上传设备变更
+- 日期：2026-09-10
+- 实现：沿用 Sync Mutation Contract，支持重命名、移动、回收站和恢复四类设备变更；服务端按启用 binding、节点归属和期望版本逐项应用，并返回逐项成功或错误结果。
+- Console：新增“设备变更上传”后台页面，真实调用 `POST /api/drive/bindings/{bindingId}/mutations`，支持提交操作参数并展示 operation ID、应用状态和错误信息。
+- 验证：Console `pnpm typecheck`；主要提交：`1696ad84`。
