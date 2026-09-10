@@ -1688,6 +1688,12 @@
 - Console：ListenRoom 提供切歌 Payload 提交并回放事件，展示当前 sequence、状态版本和事件内容。
 - 验证：`TRACK_CHANGE` 控制与事件回放路径已复验；主要提交：既有实现（本 issue 无新增代码）。
 
+## C04-03 同步切歌和播放状态
+- 日期：2026-09-10
+- 实现：切歌和播放/暂停分别使用 `TRACK_CHANGE`、`PLAY_STATE` 事件，服务端按状态版本处理并持久化事件事实。
+- Console：ListenRoom 提供切歌与播放状态控制，提交后增量回放最新事件。
+- 验证：两类控制命令和状态版本刷新已复验；主要提交：既有实现（本 issue 无新增代码）。
+
 ## 媒体消费 Console API 对齐修复
 - `/media` 原页面把不存在于 `PlaybackHistoryView` 的标题、进度和删除能力渲染成可用操作；已改为仅展示 `/media/playback/history` 实际返回的 `resourceId`、`sessionId`、`startedAt`、`endedAt` 和 `watchedSeconds`。
 - 移除无后端契约支撑的“继续”“从历史中移除”和通用队列“保存顺序”伪入口；音乐播放/队列继续使用 `/music` 的真实 API 页面。
