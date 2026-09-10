@@ -2101,3 +2101,9 @@
 - 实现：创建明确下载时先按用户、设备、Resource、Attachment 查询 ACTIVE Cache Entry；命中则直接创建 `COMPLETED` Download Intent，未命中才创建 `QUEUED`，CACHE 类型不参与复用判断。
 - Console：下载任务创建结果读取真实 API 返回状态，缓存命中时明确提示“已复用现有缓存”，并继续刷新任务列表。
 - 验证：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`1266f9b2`、`254e97c6`。
+
+## B20-04 设置缓存配额
+- 日期：2026-09-10
+- 实现：新增按用户/设备持久化的 `offline_cache_quota`，提供 `GET/PUT /api/offline/cache/quota`；读取返回配额、ACTIVE 缓存已使用量和可用量，默认配额为 1 GiB，设置值必须为正整数 Bytes，并校验设备仍可用。
+- Console：新增“缓存配额”后台页面，支持读取、保存和重新计算使用量；明确说明自动缓存与用户明确下载分离。
+- 验证：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`414cd688`。
