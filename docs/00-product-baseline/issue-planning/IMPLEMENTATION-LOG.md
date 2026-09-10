@@ -1488,6 +1488,13 @@
 - B09-04：“从此处播放”先创建后续歌曲 Queue，再复用 Audio Source、预览地址和播放 Session API。
 - 验证：音乐库页 `/music` 返回 HTTP 200，Console typecheck/build 已通过。
 
+## B10-01 上传并读取图片元数据
+- 日期：2026-09-10
+- 实现：修正 Photo 登记边界，改为校验当前用户可读的已完成 `image/*` Attachment，并将其绑定到已有的 PHOTO Resource；拒绝非图片、未就绪附件和重复登记，保存原图主资产。
+- Console：`/photos` 已接入真实 `POST /photos`、`GET /photos/timeline`、`GET /photos/{id}/metadata`、`GET /photos/{id}/assets`、`GET /attachments/{id}/preview-url` 和带 `If-Match` 的 `PUT /photos/{id}/metadata`；支持登记、时间线、预览、资产和元数据编辑。
+- 验证：`mvn -s .mvn-local-settings.xml -pl photo -am test` BUILD SUCCESS，其中 `PersistentPhotoServiceTest` 2/2；Console `pnpm typecheck`、`pnpm build` 通过。application 各模块编译成功，最终 repackage 因运行中的 JAR 文件锁定未完成。
+- 主要提交：`04742f53`。GitHub issue 评论/关闭待认证恢复后同步。
+
 ## C01-01/C01-02/C01-03/C01-05 Console 对接审计
 - `/sharing` 已改为只调用真实 `GET /shares`、`POST /shares` 和 `POST /shares/{id}/actions/revoke`；创建表单字段与 `CreateShareRequest` 对齐：`targetType`、`targetId`、`granteeType`、`granteeId`、`capabilities`、`expiresAt`。
 - 创建链接令牌时展示后端本次返回的 token，并提示仅在创建结果中保存；列表展示真实 Share Grant 字段和 ACTIVE/REVOKED 状态。
