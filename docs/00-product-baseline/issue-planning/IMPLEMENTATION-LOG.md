@@ -1990,3 +1990,9 @@
 - 实现：复用 Sync Binding 的服务端 resume 命令，将暂停或降级的绑定恢复到活动状态，保留已有游标和逐文件持久化结果。
 - Console：备份目录页新增“恢复中断备份”操作，真实调用 `POST /api/drive/bindings/{bindingId}/resume`，成功后刷新绑定状态。
 - 验证：Console `pnpm typecheck`；主要提交：`661cd358`。
+
+## B17-06 查看逐文件失败结果
+- 日期：2026-09-10
+- 实现：复用 Camera Backup 查询结果中的失败状态和 `errorMessage`，不改变服务端失败事实或覆盖失败历史。
+- Console：备份文件检测页增加“仅显示失败文件”筛选和失败原因列，真实展示 `ERROR`、`SOURCE_UNAVAILABLE`、`PERMISSION_REQUIRED`、`PHOTO_PROJECTION_FAILED` 等失败记录。
+- 验证：Console `pnpm typecheck`；主要提交：`dc3c8a4e`。
