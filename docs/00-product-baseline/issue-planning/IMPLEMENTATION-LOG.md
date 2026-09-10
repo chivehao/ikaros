@@ -2107,3 +2107,9 @@
 - 实现：新增按用户/设备持久化的 `offline_cache_quota`，提供 `GET/PUT /api/offline/cache/quota`；读取返回配额、ACTIVE 缓存已使用量和可用量，默认配额为 1 GiB，设置值必须为正整数 Bytes，并校验设备仍可用。
 - Console：新增“缓存配额”后台页面，支持读取、保存和重新计算使用量；明确说明自动缓存与用户明确下载分离。
 - 验证：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`414cd688`。
+
+## B20-05 清理可淘汰缓存
+- 日期：2026-09-10
+- 实现：新增 `POST /api/offline/cache/evict-eligible?deviceId=...`；仅将 ACTIVE 自动缓存标记为 EVICTED，并按未移除的 DOWNLOAD Intent 目标保护明确下载，返回清理数量、释放字节数和保护数量。不存在/撤销设备会拒绝操作。
+- Console：新增“清理可淘汰缓存”后台页面，执行前明确确认，真实展示服务端清理结果和保护目标数量。
+- 验证：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`1d43ba0c`、`f4b9a4fd`。
