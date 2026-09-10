@@ -1635,6 +1635,12 @@
 - 验证：Console typecheck/build 通过；主要提交：`71d65d44`。
 - 本轮复验（2026-09-10）：`WatchRoom.vue` 已核对真实 `POST /rooms/{id}/control` 与 `GET /rooms/{id}/events?afterSequence=...`，控制请求携带当前 `expectedStateVersion`，事件回放更新 sequence/state version；sharing 模块仍无自动化测试源，未虚报后端覆盖。
 
+## C03-01 房主发起播放
+- 日期：2026-09-10
+- 实现：房主通过 Room control command 发起播放，服务端校验房主/成员权限和目标 Room 状态。
+- Console：一起看页面使用 `POST /api/rooms/{roomId}/control` 提交播放命令，并通过事件回放展示服务端状态。
+- 验证：控制 API 与 WatchRoom 页面已复验；主要提交：既有实现（本 issue 无新增代码）。
+
 ## C04-01 至 C04-05 Console 对接审计
 - 新增 `/collaboration-center/listen`“一起听”页面，使用 `POST /rooms/{roomId}/control` 提交 `QUEUE_UPDATE`、`TRACK_CHANGE` 和 `PLAY_STATE`，由后端校验成员控制权限与状态版本。
 - 页面使用 `GET /rooms/{roomId}/events?afterSequence=...` 增量同步队列/歌曲/播放状态，并每 5 秒轮询，覆盖断线后按 sequence 恢复。
