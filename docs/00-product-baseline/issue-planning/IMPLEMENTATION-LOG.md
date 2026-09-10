@@ -1604,6 +1604,12 @@
 - Console：成员列表对可移除成员调用 `POST /api/rooms/{roomId}/members/{principalId}/actions/remove`，操作后重新加载成员列表并显示错误状态。
 - 验证：成员移除 API 与权限失败反馈已复验；主要提交：`6feb874d`。
 
+## C02-05 离开房间
+- 日期：2026-09-10
+- 实现：成员离开由服务端执行，房主转移/空房间等边界按 Room 领域规则处理。
+- Console：Room 管理页提供“离开”操作，调用 `POST /api/rooms/{roomId}/actions/leave`，成功后刷新 Room 与成员状态。
+- 验证：离开 API、成员状态刷新和错误反馈已复验；主要提交：`6feb874d`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
