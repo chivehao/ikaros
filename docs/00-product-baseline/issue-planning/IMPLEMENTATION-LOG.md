@@ -1516,6 +1516,13 @@
 - 验证：`mvn -s .mvn-local-settings.xml -pl photo -am test` BUILD SUCCESS，Photo 测试 3/3；Console `pnpm typecheck` 通过。GitHub issue 评论/关闭待认证恢复后同步。
 - 主要提交：`d2060c81`。GitHub issue 评论/关闭待认证恢复后同步。
 
+## B10-05 重新生成派生图
+- 日期：2026-09-10
+- 实现：新增 `POST /photos/{id}/actions/regenerate-thumbnail`，仅通过 Operations `retry(taskId)` 重试失败或超时任务，保持原图不变；成功后以新的 `THUMBNAIL` 派生资产返回，重试不复用旧失败任务的幂等记录。
+- Console：详情页在 `FAILED`/`TIMED_OUT` 状态显示“重新生成缩略图”，提交后继续轮询任务并在成功时重新加载资产；非失败状态仍使用首次生成入口。
+- 验证：`mvn -s .mvn-local-settings.xml -pl photo -am test` BUILD SUCCESS，Photo 测试 3/3；Console `pnpm typecheck` 通过。GitHub issue 评论/关闭待认证恢复后同步。
+- 主要提交：`e3d2056d`。GitHub issue 评论/关闭待认证恢复后同步。
+
 ## C01-01/C01-02/C01-03/C01-05 Console 对接审计
 - `/sharing` 已改为只调用真实 `GET /shares`、`POST /shares` 和 `POST /shares/{id}/actions/revoke`；创建表单字段与 `CreateShareRequest` 对齐：`targetType`、`targetId`、`granteeType`、`granteeId`、`capabilities`、`expiresAt`。
 - 创建链接令牌时展示后端本次返回的 token，并提示仅在创建结果中保存；列表展示真实 Share Grant 字段和 ACTIVE/REVOKED 状态。
