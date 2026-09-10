@@ -1830,3 +1830,9 @@
 - 实现：撤回动作将已有 Publication 更新为 `UNPUBLISHED`，不删除历史 Revision。
 - Console：文档详情提供带确认的真实 `POST /api/documents/{documentId}/actions/unpublish` 操作，并明确提示历史版本保留。
 - 验证：document 模块测试 11/11；Console `pnpm typecheck`；主要提交：`750dc9b4`。
+
+## B13-06 展示发布状态
+- 日期：2026-09-10
+- 实现：新增按 owner 校验的 `GET /api/documents/{documentId}/publication` 查询，返回 Publication 状态、slug、绑定 Revision 和发布时间。
+- Console：文档详情真实加载并展示 PUBLISHED/UNPUBLISHED/未发布状态、slug 与绑定版本。
+- 验证：document 模块测试 12/12；Console `pnpm typecheck`；主要提交：`8f74d10b`。
