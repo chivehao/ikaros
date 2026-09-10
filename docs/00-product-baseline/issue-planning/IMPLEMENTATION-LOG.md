@@ -2089,3 +2089,9 @@
 - 实现：对已完成的明确下载增加本机离线副本流程：通过真实 Attachment Content API 获取 Blob 后写入 IndexedDB/localForage，并按 Download Intent ID 隔离；“离线打开”只读取本机副本，不回退请求服务端内容。本机没有副本时明确报错。
 - Console：在“缓存与我的下载”页面增加“准备离线副本”和“离线打开”操作，移除下载时同步清理对应本机副本；仅 `DOWNLOAD + COMPLETED` 且存在 Attachment ID 的记录可操作。
 - 验证：Console `pnpm typecheck`；主要提交：`eb77877f`。
+
+## B20-02 展示内容离线状态
+- 日期：2026-09-10
+- 实现：查询 Download Intent 后逐条检查对应本机离线副本；只有服务端状态为 `DOWNLOAD + COMPLETED` 且本机确实存在 Blob 时显示“离线可用”，未准备、非完成、读取失败分别保持明确状态，不把过期/失败任务显示为成功。
+- Console：在“缓存与我的下载”下载列表增加“离线状态”列，并保留空列表、API 错误和本机读取失败反馈；状态来自真实 `/api/offline/downloads` 与 IndexedDB/localForage 数据。
+- 验证：Console `pnpm typecheck`；主要提交：`d43bbac5`。
