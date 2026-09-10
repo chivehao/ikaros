@@ -2054,3 +2054,9 @@
 - 实现：沿用 Download State Machine，通过服务端 PATCH 校验状态转换，禁止已取消/已移除任务恢复。
 - Console：下载列表新增暂停/继续按钮，带确认提示，真实调用 `PATCH /api/offline/downloads/{intentId}` 后刷新状态。
 - 验证：Console `pnpm typecheck`；主要提交：`6a988afb`。
+
+## B19-03 取消下载
+- 日期：2026-09-10
+- 实现：服务端补充终态保护，已完成、已取消或已移除任务不能再次取消；可取消状态统一通过 Download State Machine 校验。
+- Console：下载列表新增带确认的取消操作，真实调用 `PATCH /api/offline/downloads/{intentId}`，成功后重新查询状态。
+- 验证：sync 模块编译测试通过；Console `pnpm typecheck`；主要提交：`de956cb7`。
