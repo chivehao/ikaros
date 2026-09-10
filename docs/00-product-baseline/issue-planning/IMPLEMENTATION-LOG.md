@@ -1943,3 +1943,9 @@
 - 实现：沿用 Drive 生命周期状态转换和节点版本校验，移入回收站不删除历史 Revision 或 Blob。
 - Console：文件详情页新增确认后的“移入回收站”操作，真实调用 `POST /api/drive/nodes/{nodeId}/trash` 并带 If-Match，成功返回云盘列表。
 - 验证：Console `pnpm typecheck`；主要提交：`36cbf988`。
+
+## B16-05 恢复文件
+- 日期：2026-09-10
+- 实现：沿用 Drive 节点恢复 API 和生命周期约束，恢复操作保留节点身份与历史版本。
+- Console：回收站运维页的恢复操作读取 tombstone 节点版本并携带 If-Match，成功后刷新回收站列表，版本冲突给出明确提示。
+- 验证：Console `pnpm typecheck`；主要提交：`33720f9b`。
