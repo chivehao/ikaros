@@ -1509,6 +1509,7 @@
 - 新增 `/collaboration-center/watch`“一起看”页面，播放/暂停/跳转调用 `POST /rooms/{roomId}/control`，携带 `expectedStateVersion`，控制权限由后端校验。
 - 页面通过 `GET /rooms/{roomId}/events?afterSequence=...` 增量回放事件，展示 sequence、state version、操作者和 payload，并每 5 秒同步一次以覆盖重连恢复。
 - 验证：Console typecheck/build 通过；主要提交：`71d65d44`。
+- 本轮复验（2026-09-10）：`WatchRoom.vue` 已核对真实 `POST /rooms/{id}/control` 与 `GET /rooms/{id}/events?afterSequence=...`，控制请求携带当前 `expectedStateVersion`，事件回放更新 sequence/state version；sharing 模块仍无自动化测试源，未虚报后端覆盖。
 
 ## C04-01 至 C04-05 Console 对接审计
 - 新增 `/collaboration-center/listen`“一起听”页面，使用 `POST /rooms/{roomId}/control` 提交 `QUEUE_UPDATE`、`TRACK_CHANGE` 和 `PLAY_STATE`，由后端校验成员控制权限与状态版本。
