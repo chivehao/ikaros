@@ -1937,3 +1937,9 @@
 - 实现：新增按 owner 和 revision number 恢复接口；恢复只切换文件当前 Revision、递增节点版本并记录变更，不修改或删除历史 Revision。
 - Console：文件详情页新增历史版本恢复按钮，当前版本禁用；恢复前确认，提交带 If-Match，成功后刷新当前版本和历史列表。
 - 验证：drive 模块测试 7/7；Console `pnpm typecheck`；主要提交：`020942de`。
+
+## B16-04 移入回收站
+- 日期：2026-09-10
+- 实现：沿用 Drive 生命周期状态转换和节点版本校验，移入回收站不删除历史 Revision 或 Blob。
+- Console：文件详情页新增确认后的“移入回收站”操作，真实调用 `POST /api/drive/nodes/{nodeId}/trash` 并带 If-Match，成功返回云盘列表。
+- 验证：Console `pnpm typecheck`；主要提交：`36cbf988`。
