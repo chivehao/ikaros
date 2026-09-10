@@ -2171,3 +2171,9 @@
 - 实现：按 Camera Backup 契约由设备上报稳定 `sourceItemId` 与内容指纹，服务端持久化新增照片的 `DISCOVERED`/`QUEUED` 状态；实际文件传输由同步客户端执行，不由 Console 伪造上传完成。
 - Console：备份文件检测页面支持选择相机备份绑定、登记新增照片并推进到等待备份状态，随后重新查询展示结果、远端节点和更新时间。
 - 验证：`PUT/GET /api/drive/bindings/{bindingId}/camera-backups` 已接入并受服务端绑定归属校验；主要提交：既有实现（本 issue 无新增代码）。
+
+## B22-03 避免重复上传
+- 日期：2026-09-10
+- 实现：Camera Backup 映射使用数据库唯一约束 `UNIQUE (binding_id, source_item_id)`；重复上报通过已有映射更新状态和指纹，不产生重复业务记录。
+- Console：文件检测页使用稳定本地文件标识重新提交即可复用同一映射，并在刷新后观察单条结果。
+- 验证：Migration `V202609025300__DDL_DRIVE_P0.sql` 与 `findByBindingIdAndSourceItemId` 持久化路径；主要提交：既有实现（本 issue 无新增代码）。
