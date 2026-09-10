@@ -2048,3 +2048,9 @@
 - 实现：沿用 Offline Download Intent API，服务端校验设备可用性后创建持久化 `QUEUED` 任务，并区分明确下载与缓存类型。
 - Console：在“缓存与我的下载”后台页新增下载任务表单，真实调用 `POST /api/offline/downloads`，创建后刷新当前设备的下载列表。
 - 验证：Console `pnpm typecheck`；主要提交：`01dc5dce`。
+
+## B19-02 暂停与继续下载
+- 日期：2026-09-10
+- 实现：沿用 Download State Machine，通过服务端 PATCH 校验状态转换，禁止已取消/已移除任务恢复。
+- Console：下载列表新增暂停/继续按钮，带确认提示，真实调用 `PATCH /api/offline/downloads/{intentId}` 后刷新状态。
+- 验证：Console `pnpm typecheck`；主要提交：`6a988afb`。
