@@ -2189,3 +2189,8 @@
 - 实现：Camera Backup 保留 `ERROR`、`SOURCE_UNAVAILABLE`、`PERMISSION_REQUIRED` 和照片投影失败等状态及错误原因；重新提交同一稳定 `sourceItemId` 为 `QUEUED` 可恢复处理，已验证备份和已释放本地空间的状态仍受服务端保护。
 - Console：备份文件检测页支持失败项筛选，展示失败原因；通过相同文件标识和“等待备份”状态重新登记即可触发重试并在刷新后确认结果。
 - 验证：服务端状态转换与 `GET/PUT /api/drive/bindings/{bindingId}/camera-backups`；主要提交：既有实现（本 issue 无新增代码）。
+
+## B22 相机备份（父 issue）
+- 整体验收：B22-01 至 B22-05 已按顺序完成，覆盖备份范围选择、新照片登记、重复上报去重、中断恢复和失败筛选/重试。
+- Console 对接：备份目录和备份文件检测页面均调用真实 Drive Binding / Camera Backup API；文件传输由同步客户端按状态机执行，Console 不伪造上传成功。
+- 验证证据：Drive Camera Backup 唯一约束与状态转换、Console `pnpm typecheck`；主要提交：既有实现（本轮父 issue 无新增代码）。
