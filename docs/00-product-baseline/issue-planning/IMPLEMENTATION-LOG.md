@@ -2095,3 +2095,9 @@
 - 实现：查询 Download Intent 后逐条检查对应本机离线副本；只有服务端状态为 `DOWNLOAD + COMPLETED` 且本机确实存在 Blob 时显示“离线可用”，未准备、非完成、读取失败分别保持明确状态，不把过期/失败任务显示为成功。
 - Console：在“缓存与我的下载”下载列表增加“离线状态”列，并保留空列表、API 错误和本机读取失败反馈；状态来自真实 `/api/offline/downloads` 与 IndexedDB/localForage 数据。
 - 验证：Console `pnpm typecheck`；主要提交：`d43bbac5`。
+
+## B20-03 下载复用已有缓存
+- 日期：2026-09-10
+- 实现：创建明确下载时先按用户、设备、Resource、Attachment 查询 ACTIVE Cache Entry；命中则直接创建 `COMPLETED` Download Intent，未命中才创建 `QUEUED`，CACHE 类型不参与复用判断。
+- Console：下载任务创建结果读取真实 API 返回状态，缓存命中时明确提示“已复用现有缓存”，并继续刷新任务列表。
+- 验证：sync `mvn -s .mvn-local-settings.xml -pl sync -am test`；Console `pnpm typecheck`；主要提交：`1266f9b2`、`254e97c6`。
