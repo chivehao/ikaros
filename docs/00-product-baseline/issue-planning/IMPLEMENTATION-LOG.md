@@ -2037,3 +2037,8 @@
 - 实现：沿用持久化 Sync Binding 状态和 cursor，恢复同步只切换 binding 活动状态，不重置已确认游标，后续继续从该游标拉取。
 - Console：服务端变更页展示 binding 状态/游标，新增“恢复同步”操作，真实调用 `POST /api/drive/bindings/{bindingId}/resume` 后重新加载变更。
 - 验证：Console `pnpm typecheck`；主要提交：`e70fa2a9`。
+
+## B18 双向文件同步（父 issue）
+- 整体验收：B18-01 至 B18-06 已按顺序完成，覆盖服务端变更拉取、设备变更上传、冲突保留、用户解决、删除策略传播和重连续传。
+- Console 对接：服务端变更、设备变更上传和同步冲突均有真实 API 页面；同步游标、binding 状态、逐项 mutation 结果和冲突状态可观察。
+- 验证证据：drive 模块测试 9/9；Console `pnpm typecheck`；主要提交：`71927cc0`、`1696ad84`、`19962856`、`b0b2fb81`、`fef11578`、`e70fa2a9`。
