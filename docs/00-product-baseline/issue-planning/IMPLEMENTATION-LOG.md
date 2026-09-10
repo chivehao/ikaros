@@ -1843,3 +1843,9 @@
 - Console 对接：文档管理详情真实接入版本查询、差异比较、恢复、发布、撤回和状态查询 API。
 - 验证证据：document 模块测试 12/12；Console `pnpm typecheck`；application 打包成功并启动在 10000 端口；OpenAPI 已包含 B13 相关路径。
 - 主要提交：`a04407dd`、`1f5a4585`、`12e18411`、`e14ef1f3`、`750dc9b4`、`8f74d10b`。
+
+## B14-01 创建游戏条目
+- 日期：2026-09-10
+- 实现：创建游戏时先创建 `GAME` Resource，再建立 owner-scoped Game 条目。
+- Console：游戏档案页新增标题、游戏类型和语言表单，真实调用 `POST /api/games`，成功后刷新目录。
+- 验证：game 模块测试 1/1；Console `pnpm typecheck`；主要提交：`cbc4f42b`。
