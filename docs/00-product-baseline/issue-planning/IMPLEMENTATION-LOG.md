@@ -1503,6 +1503,7 @@
 - 角色与房主变更调用 `POST .../actions/role?role=...`、`POST .../actions/transfer-owner`；Room 生命周期调用 lock/unlock/end API。
 - 邀请调用 `POST /rooms/{roomId}/invites`，携带 `Idempotency-Key`；页面不再把 Room 当作未实现占位。
 - 验证：Console typecheck/build 通过；主要提交：`6feb874d`。
+- 本轮复验（2026-09-10）：sharing 模块 BUILD SUCCESS 但无自动化测试源；`RoomManager.vue` 已核对 Room 创建、成员加入/离开/移除、角色/房主、锁定/解锁/结束和邀请 API，邀请携带幂等键。未把 Console 审计当作后端集成测试证据。
 
 ## C03-01 至 C03-05 Console 对接审计
 - 新增 `/collaboration-center/watch`“一起看”页面，播放/暂停/跳转调用 `POST /rooms/{roomId}/control`，携带 `expectedStateVersion`，控制权限由后端校验。
