@@ -1575,6 +1575,11 @@
 - Console：验证分享页可重新输入同一 token；撤销后调用 `POST /api/shares/redeem` 展示服务端失败原因，不保留旧成功结果作为可访问凭据。
 - 验证：`Redeem.vue` 真实兑换路径与撤销状态错误反馈已复验；主要提交：`8800aae8`。
 
+## C01 临时分享（父 issue）
+- 整体验收：C01-01 至 C01-06 已按顺序完成，覆盖创建、有效期、访问限制、失败原因、撤销及撤销后访问校验。
+- Console 对接：分享协作页和验证分享页均接入真实 Share Grant API，创建、列表、撤销、兑换均有加载/成功/失败反馈，不使用静态分享数据。
+- 验证证据：sharing Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：`60b76efc`、`8800aae8`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
