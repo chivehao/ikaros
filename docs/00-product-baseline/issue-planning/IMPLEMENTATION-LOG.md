@@ -1400,6 +1400,7 @@
 - 日期：2026-09-10
 - 汇总：B07-01 至 B07-05 均已完成后端能力、契约追溯、自动化验证和 Console `/music` 真实 API 对接；导入、识别候选、人工修正、艺术家/专辑关联、重复检测均有明确 loading、空态、成功、冲突或错误反馈。
 - 主要提交：`d5ba529b`、`7aadd7dd`、`efa29eef`、`60ef8501`、`8b216f07`。
+- 本轮复验（2026-09-10）：music 模块全量回归 28/28 通过，覆盖导入、标签识别、人工修正、艺术家/专辑关联和重复检测；`console/src/views/media/Catalog.vue`（音乐库路由）已核对真实 `/music/*` API 与加载/空态/错误反馈。真实音频附件联调仍需外部样本/Testcontainers。
 ## B07 Console 对接逐项审计
 - B07-01/B07-04：`console/src/views/media/Catalog.vue` 通过 `POST /music/imports`（Idempotency-Key）和 `GET /music/duplicates` 完成导入与重复检查。
 - B07-02/B07-03：识别按钮调用 `POST /music/tracks/{trackId}/metadata/recognize`，候选与关联分别通过 GET/POST API 读取和提交。
