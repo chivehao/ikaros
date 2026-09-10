@@ -1753,3 +1753,9 @@
 - 实现：相册新增 `cover_photo_id` 绑定及迁移；设置封面前强制校验照片已经属于该相册，保持 Photo 与相册封面引用分离。
 - Console：相册列表展示封面 Photo ID，选中相册的成员照片可通过真实封面 API 设置封面，并显示当前封面。
 - 验证：photo 模块测试 4/4；Console `pnpm typecheck`；主要提交：`78fce8d1`。
+
+## B11-05 删除相册时保留原图
+- 日期：2026-09-10
+- 实现：新增带 `If-Match` 的相册删除 API；删除相册时依赖数据库级级联仅清理成员关系，相册中的 Photo、Attachment 与 Blob 不受影响。
+- Console：相册列表新增确认删除操作，明确提示原图和 Photo 保留，并处理版本冲突。
+- 验证：photo 模块测试 4/4；Console `pnpm typecheck`；主要提交：`9f0b81b0`。
