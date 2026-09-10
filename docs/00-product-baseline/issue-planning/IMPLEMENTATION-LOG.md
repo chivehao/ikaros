@@ -1789,3 +1789,14 @@
 - 实现：补充 Working Copy 版本不匹配回归测试；服务端 409 冲突继续拒绝静默覆盖。
 - Console：检测保存冲突后明确提示，用户可选择合并本地内容并人工确认，或放弃本地修改重新加载服务端副本。
 - 验证：document 模块测试 6/6；Console `pnpm typecheck`；主要提交：`2c8ff5e3`。
+
+## B12-05 恢复未提交的本地编辑
+- 日期：2026-09-10
+- 实现：编辑内容按文档 ID 保存到浏览器 localStorage；服务端保存成功后清理本地草稿，恢复不改变服务端版本语义。
+- Console：重新打开文档发现未提交内容时提示恢复或丢弃，避免浏览器刷新造成编辑丢失。
+- 验证：Console `pnpm typecheck`；主要提交：`4045b193`。
+
+## B12 文档编辑（父 issue）
+- 整体验收：B12-01 至 B12-05 已按顺序完成，覆盖草稿创建、Working Copy 保存、资源附件引用、编辑冲突提示和本地草稿恢复。
+- Console 对接：文档管理页与协作编辑页均使用真实 `/api/documents` API；附件引用使用真实 `GET/POST/DELETE /api/documents/{documentId}/embeds` API。
+- 验证证据：document 模块测试 6/6；Console `pnpm typecheck`；主要提交：`fc4c7100`、`ad6e65fe`、`28d76975`、`2c8ff5e3`、`4045b193`。
