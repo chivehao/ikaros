@@ -2060,3 +2060,9 @@
 - 实现：服务端补充终态保护，已完成、已取消或已移除任务不能再次取消；可取消状态统一通过 Download State Machine 校验。
 - Console：下载列表新增带确认的取消操作，真实调用 `PATCH /api/offline/downloads/{intentId}`，成功后重新查询状态。
 - 验证：sync 模块编译测试通过；Console `pnpm typecheck`；主要提交：`de956cb7`。
+
+## B19-04 校验下载结果
+- 日期：2026-09-10
+- 实现：沿用 Download Manifest 的必需项、期望大小和 SHA-256 契约；服务端仅允许从 VERIFYING 进入 COMPLETED，校验失败可记录 FAILED/NEEDS_REPAIR。
+- Console：新增“下载完整性”后台页，真实调用 Manifest 创建/查询接口和 Download 状态 PATCH，支持进入 VERIFYING 并展示校验依据，不伪造完成状态。
+- 验证：Console `pnpm typecheck`；主要提交：`1319fe6b`。
