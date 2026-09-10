@@ -164,6 +164,7 @@ export default {
       { path: "archive", name: "StorageArchive", component: () => import("@/views/storage/Archive.vue"), meta: { title: "归档与恢复", icon: "ep:refresh-left" } },
       { path: "cache", name: "StorageCache", component: () => import("@/views/storage/Cache.vue"), meta: { title: "缓存与我的下载", icon: "ep:coffee-cup" } },
       { path: "cache-quota", name: "StorageCacheQuota", component: () => import("@/views/storage/CacheQuota.vue"), meta: { title: "缓存配额", icon: "ep:pie-chart" } },
+      { path: "cache-eviction", name: "StorageCacheEviction", component: () => import("@/views/storage/CacheEviction.vue"), meta: { title: "清理可淘汰缓存", icon: "ep:delete" } },
       { path: "download-verification", name: "DownloadVerification", component: () => import("@/views/storage/DownloadVerification.vue"), meta: { title: "下载完整性", showLink: false } },
       { path: "backup", name: "Backup", component: () => import("@/views/storage/Backup.vue"), meta: { title: "备份恢复", icon: "ep:files" } },
     ]),
