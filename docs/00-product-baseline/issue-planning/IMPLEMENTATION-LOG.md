@@ -1586,6 +1586,12 @@
 - Console：Room 管理页真实调用 `POST /api/rooms`，创建后刷新 `GET /api/rooms` 并自动加载成员；空字段、目标不存在和权限失败均有反馈。
 - 验证：sharing 模块 Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：`6feb874d`。
 
+## C02-02 邀请和加入
+- 日期：2026-09-10
+- 实现：邀请创建、接受和加入均由服务端校验 Room 状态、邀请对象和成员权限；邀请创建使用幂等键。
+- Console：Room 管理页调用 `POST /api/rooms/{roomId}/invites` 并携带 `Idempotency-Key`，同时提供 `POST /api/rooms/{id}/actions/join`；成功后重新读取成员列表。
+- 验证：邀请与加入 API 路径、错误反馈和状态刷新已复验；主要提交：`6feb874d`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
