@@ -1867,3 +1867,14 @@
 - 实现：使用 Game Asset 的稳定类别枚举区分安装包、补丁、MOD、存档、说明资料、截图和其他资料，未引入字符串约定。
 - Console：资料包登记支持类别选择，列表将后端类别映射为中文显示名称，保留原始类别值用于 API 交互。
 - 验证：Console `pnpm typecheck`；主要提交：`86f9bc2e`。
+
+## B14-05 下载指定资料
+- 日期：2026-09-10
+- 实现：复用 Attachment 内容读取接口及其对象级授权，不新增旁路下载能力。
+- Console：游戏资料列表新增逐条下载操作，仅对 `AVAILABLE` 资料启用；下载请求真实调用 `GET /api/attachments/{attachmentId}/content` 并以资料显示名称保存。
+- 验证：Console `pnpm typecheck`；主要提交：`a9cf4bce`。
+
+## B14 游戏资料管理（父 issue）
+- 整体验收：B14-01 至 B14-05 已按顺序完成，覆盖游戏条目、版本信息、资料包登记、资料类别区分和指定资料下载。
+- Console 对接：游戏档案页真实接入游戏、版本和资料包 API；下载沿用 Attachment 授权内容接口。
+- 验证证据：game 模块测试 3/3；Console `pnpm typecheck`；主要提交：`cbc4f42b`、`ea7cfffc`、`bcac8f9e`、`86f9bc2e`。
