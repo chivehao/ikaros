@@ -1706,6 +1706,11 @@
 - Console：ListenRoom 按 `afterSequence` 增量拉取事件，每 5 秒同步一次，重连后恢复队列和播放状态版本。
 - 验证：事件增量回放和重连轮询已复验；主要提交：既有实现（本 issue 无新增代码）。
 
+## C04 一起听（父 issue）
+- 整体验收：C04-01 至 C04-05 已按顺序完成，覆盖房间队列、当前歌曲、播放状态、修改权限和重连恢复。
+- Console 对接：ListenRoom 使用真实 Room control/event API，`QUEUE_UPDATE`、`TRACK_CHANGE`、`PLAY_STATE` 均携带 `expectedStateVersion`，事件按 sequence 同步。
+- 验证证据：sharing 模块 Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：既有实现（本 issue 无新增代码）。
+
 ## 媒体消费 Console API 对齐修复
 - `/media` 原页面把不存在于 `PlaybackHistoryView` 的标题、进度和删除能力渲染成可用操作；已改为仅展示 `/media/playback/history` 实际返回的 `resourceId`、`sessionId`、`startedAt`、`endedAt` 和 `watchedSeconds`。
 - 移除无后端契约支撑的“继续”“从历史中移除”和通用队列“保存顺序”伪入口；音乐播放/队列继续使用 `/music` 的真实 API 页面。
