@@ -1562,6 +1562,7 @@
 - 整体验收：A21-01 至 A21-06 已逐项完成；同步来源、外部更新检测、人工锁定、候选冲突决策和最近状态均有 API、持久化边界及 Console 入口。
 - 限制：当前 A21-02 是显式刷新检测入口，尚未接入具体第三方 Provider 拉取器、定时调度或 webhook；这些属于后续 Provider/调度任务，不在本父 issue 子任务范围内。
 - 验证证据：同步来源测试 2/2、检测测试 2/2、Resource Metadata 测试 3/3、候选决策测试 2/2、Console typecheck 通过；主要提交：`46edfab6`、`59da474f`、`dde659f5`、`eda158ed`、`b5e798ed`。
+- 本轮复验（2026-09-10）：ingestion 全量回归 13/13 通过；`ingestion/index.vue` 已核对同步来源 CRUD/启停/状态/显式刷新 API，`resources/Detail.vue` 已核对元数据人工覆盖、候选查询和 APPLY/REJECT 决策 API。第三方 Provider 拉取器、定时调度和 webhook 仍明确不在本 issue 范围内。
 
 ## A22-01 安装并校验插件包
 - 日期：2026-09-10
