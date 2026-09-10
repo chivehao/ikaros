@@ -2019,3 +2019,9 @@
 - 实现：沿用 Sync Conflict 持久化模型，记录 binding、节点、基础版本、远端版本和本地内容指纹，冲突以 OPEN 事实保留，不覆盖任一版本。
 - Console：同步冲突页按 binding 查询冲突，新增真实 `POST /api/drive/conflicts` 检测入口，并接入 RESOLVED/DISMISSED 处理操作。
 - 验证：Console `pnpm typecheck`；主要提交：`19962856`。
+
+## B18-04 由用户解决冲突
+- 日期：2026-09-10
+- 实现：沿用服务端 `RESOLVED`/`DISMISSED` 状态转换，保留冲突记录及其双方版本信息，处理结果可重新查询。
+- Console：同步冲突页的解决/忽略操作增加明确确认和成功反馈，真实调用 `POST /api/drive/conflicts/{conflictId}/resolve` 后刷新列表。
+- 验证：Console `pnpm typecheck`；主要提交：`b0b2fb81`。
