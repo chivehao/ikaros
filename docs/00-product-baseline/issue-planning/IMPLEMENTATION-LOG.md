@@ -2066,3 +2066,9 @@
 - 实现：沿用 Download Manifest 的必需项、期望大小和 SHA-256 契约；服务端仅允许从 VERIFYING 进入 COMPLETED，校验失败可记录 FAILED/NEEDS_REPAIR。
 - Console：新增“下载完整性”后台页，真实调用 Manifest 创建/查询接口和 Download 状态 PATCH，支持进入 VERIFYING 并展示校验依据，不伪造完成状态。
 - 验证：Console `pnpm typecheck`；主要提交：`1319fe6b`。
+
+## B19-05 查看已下载内容
+- 日期：2026-09-10
+- 实现：沿用 Download Intent 的 `DOWNLOAD`/`COMPLETED` 语义，已下载内容与可淘汰 CACHE 记录保持区分。
+- Console：缓存与我的下载页新增“仅显示已完成的明确下载”筛选，真实读取 `/api/offline/downloads` 后展示 Resource、Attachment、类型、状态和创建时间。
+- 验证：Console `pnpm typecheck`；主要提交：`1ef8ba26`。
