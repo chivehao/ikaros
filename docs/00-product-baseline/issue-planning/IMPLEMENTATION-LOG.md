@@ -2001,3 +2001,9 @@
 - 整体验收：B17-01 至 B17-06 已按顺序完成，覆盖设备登记、备份目录配置、首次备份、文件检测、中断恢复和逐文件失败结果。
 - Console 对接：同步设备、备份目录、备份操作和备份文件检测均为真实 API 页面，展示持久化 binding 与 Camera Backup 状态，不使用静态假数据。
 - 验证证据：Console `pnpm typecheck`；主要提交：`ed5f11c7`、`2e37cab3`、`97c16557`、`9edd6ce3`、`661cd358`、`dc3c8a4e`。
+
+## B18-01 拉取服务端变更
+- 日期：2026-09-10
+- 实现：沿用 Drive Change Log 的空间序列和 Sync Binding cursor，按 `afterSequence` 拉取最多 100 条变更，并通过服务端校验后持久化推进游标，禁止回退。
+- Console：新增“服务端变更”后台页面，真实调用 `GET /api/drive/spaces/{spaceId}/changes` 和 `POST /api/drive/bindings/{bindingId}/cursor`，支持选择同步配置、查看节点/版本变更并确认处理进度。
+- 验证：Console `pnpm typecheck`；主要提交：`71927cc0`。
