@@ -1539,6 +1539,12 @@
 - 验证：Console typecheck/build 通过；主要提交：`8800aae8`。
 - 本轮复验（2026-09-10）：sharing 模块 `mvn -s .mvn-local-settings.xml -pl sharing -am test` BUILD SUCCESS，但当前模块无自动化测试源；`console/src/views/sharing/index.vue` 与 `Redeem.vue` 已核对真实列表/创建/撤销/兑换 API，并保留令牌只在创建响应展示。GitHub 评论/关闭待认证恢复后同步。
 
+## C01-01 创建分享链接
+- 日期：2026-09-10
+- 实现：复用 Share Grant 持久化创建接口，支持 Resource/Collection 目标、链接令牌/用户/访客授予方式、能力和过期时间；服务端负责目标归属与权限校验。
+- Console：分享协作页真实调用 `POST /api/shares`，创建成功展示本次返回的 token，并刷新 `GET /api/shares` 列表；非法目标、空字段和权限失败显示错误。
+- 验证：sharing 模块 Maven 构建、Console typecheck/build、运行页 HTTP 200；主要提交：`60b76efc`。
+
 ## C02-01 至 C02-06 Console 对接审计
 - 新增 `/collaboration-center/rooms` Room 管理页，真实调用 `GET/POST /rooms`，展示 Room 状态、版本和空/加载/错误状态。
 - 成员流程调用 `GET /rooms/{id}/members`、`POST /rooms/{id}/actions/join`、`POST /rooms/{id}/actions/leave`、`POST /rooms/{id}/members/{principal}/actions/remove`。
