@@ -2165,3 +2165,9 @@
 - 实现：复用 Drive Sync Binding 的持久化配置，范围由设备、本地 Scope、本地显示路径和来源类型表达；服务端校验用户归属、备份模式与 Scope 冲突。
 - Console：备份目录页面的来源类型支持“相机胶卷（`CAMERA_ROLL`）”，选择结果通过 `POST /api/drive/bindings` 保存，并在重新查询后展示；非法设备/空间/Scope 会被拒绝并显示错误。
 - 验证：已有 Drive Binding API 与 Console 页面联调证据；主要提交：既有实现（本 issue 无新增代码）。
+
+## B22-02 备份新增照片
+- 日期：2026-09-10
+- 实现：按 Camera Backup 契约由设备上报稳定 `sourceItemId` 与内容指纹，服务端持久化新增照片的 `DISCOVERED`/`QUEUED` 状态；实际文件传输由同步客户端执行，不由 Console 伪造上传完成。
+- Console：备份文件检测页面支持选择相机备份绑定、登记新增照片并推进到等待备份状态，随后重新查询展示结果、远端节点和更新时间。
+- 验证：`PUT/GET /api/drive/bindings/{bindingId}/camera-backups` 已接入并受服务端绑定归属校验；主要提交：既有实现（本 issue 无新增代码）。
