@@ -1806,3 +1806,9 @@
 - 实现：复用 Document Revision 查询 API，按服务端 `revision_number DESC` 返回当前用户文档的已提交版本，并补充 owner 边界和顺序测试。
 - Console：文档管理详情抽屉真实调用 `GET /api/documents/{documentId}/revisions`，展示版本号、Schema、创建时间和创建者，并支持刷新。
 - 验证：document 模块测试 7/7；Console `pnpm typecheck`；主要提交：`a04407dd`。
+
+## B13-02 对比版本差异
+- 日期：2026-09-10
+- 实现：新增 `GET /api/documents/{documentId}/revisions/compare`，按两个 Revision Number 返回逐行 `UNCHANGED/REMOVED/ADDED` 差异，并校验文档归属及版本存在性。
+- Console：文档详情版本列表新增基准/目标版本选择和真实差异展示，删除或修改版本不会影响不可变 Revision。
+- 验证：document 模块测试 8/8；Console `pnpm typecheck`；`git diff --check`；主要提交：`1f5a4585`。
