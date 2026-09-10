@@ -1739,6 +1739,12 @@
 - Console：工作副本保存遇到 409 时调用 `POST /api/documents/{documentId}/working-copy/actions/merge`，把合并结果放回编辑器供人工确认。
 - 验证：`DocumentMergeServiceTest` 2/2；document 模块回归 2/2；主要提交：`d03d7d8c`、`e2c551d5`。
 
+## C05-05 保存协作结果为版本
+- 日期：2026-09-10
+- 实现：复用 Document Revision API，将当前 Working Copy 内容与 `expectedVersion` 提交为不可变 Revision；Working Copy、Revision、Publication 生命周期保持分离。
+- Console：新增“提交协作版本”页面和路由，真实读取 `/api/documents/{id}/working-copy`，提交 `POST /api/documents/{id}/revisions`，展示新 Revision 或版本冲突错误。
+- 验证：Console `pnpm typecheck`；主要提交：`4df53b46`。
+
 ## C05-02 Console 对接审计
 - `document` 新增 owner-scoped Presence 心跳、查询和离开 API：`PUT/GET/DELETE /documents/{documentId}/presence`，Presence 使用 30 秒短 TTL，不写入文档版本真相。
 - `/documents/editor` 每 10 秒发送心跳并刷新在线人数，组件卸载时 best-effort 离开；Presence 请求失败显示可见错误。
