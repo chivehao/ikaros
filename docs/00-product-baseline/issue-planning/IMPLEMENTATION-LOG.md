@@ -1783,3 +1783,9 @@
 - 实现：复用 Document Embed API 管理文档与 Attachment 的引用关系；移除 Embed 不删除 Attachment 本身。
 - Console：协作编辑页真实调用 `GET/POST/DELETE /api/documents/{documentId}/embeds`，支持插入、查看和移除资源附件引用。
 - 验证：document 模块测试 5/5；Console `pnpm typecheck`；主要提交：`28d76975`。
+
+## B12-04 检测并提示编辑冲突
+- 日期：2026-09-10
+- 实现：补充 Working Copy 版本不匹配回归测试；服务端 409 冲突继续拒绝静默覆盖。
+- Console：检测保存冲突后明确提示，用户可选择合并本地内容并人工确认，或放弃本地修改重新加载服务端副本。
+- 验证：document 模块测试 6/6；Console `pnpm typecheck`；主要提交：`2c8ff5e3`。
