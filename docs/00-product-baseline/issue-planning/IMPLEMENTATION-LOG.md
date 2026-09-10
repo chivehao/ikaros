@@ -1855,3 +1855,9 @@
 - 实现：修复无平台版本创建时的 Reactive 空值错误；版本创建支持可选平台和发布日期，并保留 owner/game 归属校验。
 - Console：游戏档案页新增游戏选择、版本号、平台、发布日期表单及版本列表，真实调用 `GET /api/games/{gameId}/versions`、`GET /api/games/platforms` 和 `POST /api/games/{gameId}/versions`。
 - 验证：game 模块测试 2/2；Console `pnpm typecheck`；主要提交：`ea7cfffc`。
+
+## B14-03 为版本添加资料包
+- 日期：2026-09-10
+- 实现：沿用 Game Asset 的 owner、Game 和 Attachment 归属校验，验证资料包必须引用当前用户可用的 Attachment，并支持绑定具体版本。
+- Console：游戏档案页新增资料包登记表单和列表，真实调用 `POST /api/games/{gameId}/assets`、`GET /api/games/{gameId}/assets`；资料包展示 Attachment、版本、类别和可用性。
+- 验证：game 模块测试 3/3；Console `pnpm typecheck`；主要提交：`bcac8f9e`。
