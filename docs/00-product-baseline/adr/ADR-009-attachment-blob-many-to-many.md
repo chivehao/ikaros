@@ -48,11 +48,11 @@ Attachment 创建请求幂等范围为 `(created_by, idempotency_key)`。规范�
 
 ## 收敛与迁移
 
-当前 `AttachmentEntity.blobId`、单 Blob 查询和公开 API 是旧实现，不代表新基数已经落地。先收敛 Subsystem、Schema、Command/Query/Event、OpenAPI 与验收契约，再按 Expand → Migrate → Contract 实施。
+Resource/Attachment 状态列与关系表已按 Expand → Migrate → Contract 实施；运行时读写使用状态码、`resource_attachment` 和 `attachment_blob`。读取派生表示的请求参数仍未冻结，默认查询继续使用原件。
 
-- Expand：追加 Owner Migration 引入绑定表，新增 Resource/Attachment 状态列、用户关系和更新时间列，并保留旧字段供迁移期间兼容。
-- Migrate：为每个已有附件建立指向原 `blob_id` 的 `ORIGINAL` 绑定，建立 `resource_attachment` 关联和 Resource Owner 关系，保持附件与 Blob ID；校验引用数量、内容摘要、授权和可读性。大规模回填由有界可恢复任务完成。
-- Contract：全部读取、上传提交、预览、Range、恢复、Retention、GC、Backup/Export 与管理端列表改用绑定后，再追加 Migration 收缩旧字段；已发布 Migration 不原地修改。
+- Expand：Owner Migration 引入绑定表、新状态列、用户关系和更新时间列。
+- Migrate：为已有附件建立指向原 `blob_id` 的 `ORIGINAL` 绑定，建立 `resource_attachment` 关联和 Resource Owner 关系，保持附件与 Blob ID。
+- Contract：运行时代码切换到状态列和关联表后，Owner Migration 删除 Resource/Attachment 旧所有权与单关联字段，并将 Resource-附件关联表收敛为复合主键。
 - 管理员附件 Blob 查询需要从单对象响应收敛为有界列表；旧接口的兼容方式和新 Operation 必须先登记。
 
 ## 验收要求

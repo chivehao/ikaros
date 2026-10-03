@@ -500,15 +500,13 @@ Attachment 状态码：`0` 已删除终态、`1` 正常、`2` 回收站、`3` �
 
 | Column | Type | Null |
 |---|---|---:|
-| `id` | uuid | NO |
 | `resource_id` | uuid | NO |
 | `attachment_id` | uuid | NO |
 | `created_at` | timestamptz | NO |
 | `version` | bigint | NO |
 
 ```text
-PRIMARY KEY(id)
-UNIQUE(resource_id, attachment_id)
+PRIMARY KEY(resource_id, attachment_id)
 FK resource_id -> resource.resource(id) ON DELETE RESTRICT
 FK attachment_id -> storage.attachment(id) ON DELETE CASCADE
 CHECK version >= 0
