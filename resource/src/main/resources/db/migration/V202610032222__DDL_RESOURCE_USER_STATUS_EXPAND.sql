@@ -17,13 +17,14 @@ create index resource_status_updated_idx on resource (status, updated_at desc, i
 
 create table user_resource
 (
+    id          uuid        primary key default uuid_v7(),
     user_id     uuid        not null,
     resource_id uuid        not null,
     role        varchar(16) not null,
     created_at  timestamptz not null default current_timestamp,
     updated_at  timestamptz not null default current_timestamp,
     version     bigint      not null default 0,
-    constraint user_resource_pk primary key (user_id, resource_id),
+    constraint user_resource_user_resource_uq unique (user_id, resource_id),
     constraint user_resource_user_fk foreign key (user_id) references platform_user (id) on delete restrict,
     constraint user_resource_resource_fk foreign key (resource_id) references resource (id) on delete cascade,
     constraint user_resource_role_ck check (role in ('OWNER', 'EDITOR', 'VIEWER')),

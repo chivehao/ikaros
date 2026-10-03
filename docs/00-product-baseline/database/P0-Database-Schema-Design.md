@@ -182,6 +182,7 @@ Resource 与用户的所有权/访问关系。每个 Resource 必须有且仅有
 
 | Column | Type | Null | Contract |
 |---|---|---:|---|
+| `id` | uuid | NO | UUIDv7 |
 | `user_id` | uuid | NO | 用户 |
 | `resource_id` | uuid | NO | Resource |
 | `role` | text | NO | `OWNER / EDITOR / VIEWER` |
@@ -190,7 +191,8 @@ Resource 与用户的所有权/访问关系。每个 Resource 必须有且仅有
 | `version` | bigint | NO | 乐观并发版本 |
 
 ```text
-PRIMARY KEY(user_id, resource_id)
+PRIMARY KEY(id)
+UNIQUE(user_id, resource_id)
 FK user_id -> platform_user(id) ON DELETE RESTRICT
 FK resource_id -> resource.resource(id) ON DELETE CASCADE
 CHECK role IN ('OWNER','EDITOR','VIEWER')
@@ -498,13 +500,15 @@ Attachment 状态码：`0` 已删除终态、`1` 正常、`2` 回收站、`3` �
 
 | Column | Type | Null |
 |---|---|---:|
+| `id` | uuid | NO |
 | `resource_id` | uuid | NO |
 | `attachment_id` | uuid | NO |
 | `created_at` | timestamptz | NO |
 | `version` | bigint | NO |
 
 ```text
-PRIMARY KEY(resource_id, attachment_id)
+PRIMARY KEY(id)
+UNIQUE(resource_id, attachment_id)
 FK resource_id -> resource.resource(id) ON DELETE RESTRICT
 FK attachment_id -> storage.attachment(id) ON DELETE CASCADE
 CHECK version >= 0

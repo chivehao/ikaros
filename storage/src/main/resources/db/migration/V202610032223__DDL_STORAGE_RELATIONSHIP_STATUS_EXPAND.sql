@@ -43,11 +43,12 @@ create index attachment_status_created_idx on attachment (status, created_at des
 
 create table resource_attachment
 (
+    id            uuid        primary key default uuid_v7(),
     resource_id   uuid        not null,
     attachment_id uuid        not null,
     created_at    timestamptz not null default current_timestamp,
     version       bigint      not null default 0,
-    constraint resource_attachment_pk primary key (resource_id, attachment_id),
+    constraint resource_attachment_resource_attachment_uq unique (resource_id, attachment_id),
     constraint resource_attachment_resource_fk foreign key (resource_id) references resource (id) on delete restrict,
     constraint resource_attachment_attachment_fk foreign key (attachment_id) references attachment (id) on delete cascade,
     constraint resource_attachment_version_ck check (version >= 0)
