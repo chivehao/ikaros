@@ -121,6 +121,6 @@ class DefaultResourceRelationServiceTest {
     }
 
     private ResourceEntity resource(UUID id, UUID ownerId, Instant now) {
-        return new ResourceEntity(id, ownerId, ResourceType.DOCUMENT, ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        return new ResourceEntity(id, ResourceType.DOCUMENT, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
     }
 }

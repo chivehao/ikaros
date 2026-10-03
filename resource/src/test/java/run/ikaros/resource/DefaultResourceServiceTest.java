@@ -53,8 +53,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity saved = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK,
-            ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        ResourceEntity saved = new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
         ResourceTitleEntity title = new ResourceTitleEntity(UUID.randomUUID(), resourceId, "zh-CN", "测试书籍",
             true, now, now, 0L);
 
@@ -110,8 +109,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity resource = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK,
-            ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        ResourceEntity resource = new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
         ResourceTitleEntity title = new ResourceTitleEntity(UUID.randomUUID(), resourceId, "zh-CN", "测试书籍",
             true, now, now, 0L);
         when(resourceRepository.search(ownerId, "", "书", "ACTIVE", "", "", "", 20, 20)).thenReturn(Flux.just(resource));
@@ -144,8 +142,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity archived = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK,
-            ResourceLifecycle.ARCHIVED, now, now, null, 2L);
+        ResourceEntity archived = new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ARCHIVED.statusCode(), now, now, 2L);
         ResourceTitleEntity title = new ResourceTitleEntity(UUID.randomUUID(), resourceId, "zh-CN", "归档书籍",
             true, now, now, 0L);
         when(resourceRepository.search(ownerId, "", "", "ARCHIVED", "", "", "", 0, 20)).thenReturn(Flux.just(archived));
@@ -179,8 +176,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         Instant now = Instant.now();
         java.util.List<ResourceEntity> resources = java.util.Arrays.stream(ResourceLifecycle.values())
-            .map(lifecycle -> new ResourceEntity(UUID.randomUUID(), ownerId, ResourceType.BOOK,
-                lifecycle, now, now, null, 0L))
+            .map(lifecycle -> new ResourceEntity(UUID.randomUUID(), ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, lifecycle.statusCode(), now, now, 0L))
             .toList();
         when(resourceRepository.search(ownerId, "", "", "", "", "", "", 20, 20))
             .thenReturn(Flux.fromIterable(resources));
@@ -218,10 +214,8 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity active = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            ResourceLifecycle.ACTIVE, now, now, null, 2L);
-        ResourceEntity trashed = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            ResourceLifecycle.TRASHED, now, now, now, 3L);
+        ResourceEntity active = new ResourceEntity(resourceId, ResourceType.VIDEO, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 2L);
+        ResourceEntity trashed = new ResourceEntity(resourceId, ResourceType.VIDEO, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED.statusCode(), now, now, 3L);
 
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(active));
         when(resourceRepository.save(any(ResourceEntity.class))).thenReturn(Mono.just(trashed));
@@ -242,10 +236,8 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity current = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK,
-            "测试书籍", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE, now, now, null, 0L);
-        ResourceEntity updated = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK,
-            "测试书籍", "第一版", ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE, now, now, null, 1L);
+        ResourceEntity current = new ResourceEntity(resourceId, ResourceType.BOOK, "测试书籍", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
+        ResourceEntity updated = new ResourceEntity(resourceId, ResourceType.BOOK, "测试书籍", "第一版", ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 1L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(current), Mono.just(updated));
         when(resourceRepository.save(any(ResourceEntity.class))).thenReturn(Mono.just(updated));
         when(auditService.record(ownerId, "resource.update", "RESOURCE", resourceId, "{}")).thenReturn(Mono.empty());
@@ -266,10 +258,8 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity active = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE, now, now, null, 2L);
-        ResourceEntity archived = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ARCHIVED, now, now, null, 3L);
+        ResourceEntity active = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 2L);
+        ResourceEntity archived = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ARCHIVED.statusCode(), now, now, 3L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(active));
         when(resourceRepository.save(any(ResourceEntity.class))).thenReturn(Mono.just(archived));
         when(auditService.record(ownerId, "resource.archive", "RESOURCE", resourceId, "{}")).thenReturn(Mono.empty());
@@ -288,8 +278,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity trashed = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED, now, now, now, 2L);
+        ResourceEntity trashed = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED.statusCode(), now, now, 2L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(trashed));
 
         StepVerifier.create(service.trash(ownerId, resourceId, 2L)).verifyComplete();
@@ -302,8 +291,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity trashed = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED, now, now, now, 2L);
+        ResourceEntity trashed = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED.statusCode(), now, now, 2L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(trashed));
 
         StepVerifier.create(service.archive(ownerId, resourceId, 2L))
@@ -318,10 +306,8 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity trashed = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED, now, now, now, 2L);
-        ResourceEntity restored = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE, now, now, null, 3L);
+        ResourceEntity trashed = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED.statusCode(), now, now, 2L);
+        ResourceEntity restored = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 3L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(trashed));
         when(resourceRepository.save(any(ResourceEntity.class))).thenReturn(Mono.just(restored));
         when(auditService.record(ownerId, "resource.restore", "RESOURCE", resourceId, "{}")).thenReturn(Mono.empty());
@@ -342,8 +328,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity active = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE, now, now, null, 2L);
+        ResourceEntity active = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 2L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(active));
 
         StepVerifier.create(service.restore(ownerId, resourceId, 2L))
@@ -358,10 +343,8 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity trashed = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED, now, now, now, 2L);
-        ResourceEntity purged = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.PURGED, now, now, now, 3L);
+        ResourceEntity trashed = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.TRASHED.statusCode(), now, now, 2L);
+        ResourceEntity purged = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.PURGED.statusCode(), now, now, 3L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(trashed));
         when(resourceRepository.save(any(ResourceEntity.class))).thenReturn(Mono.just(purged));
         when(auditService.record(ownerId, "resource.purge", "RESOURCE", resourceId, "{}"))
@@ -380,8 +363,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity active = new ResourceEntity(resourceId, ownerId, ResourceType.VIDEO,
-            "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE, now, now, null, 2L);
+        ResourceEntity active = new ResourceEntity(resourceId, ResourceType.VIDEO, "视频", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 2L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(active));
 
         StepVerifier.create(service.purge(ownerId, resourceId, 2L))
@@ -397,8 +379,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity resource = new ResourceEntity(resourceId, ownerId, ResourceType.MUSIC,
-            ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        ResourceEntity resource = new ResourceEntity(resourceId, ResourceType.MUSIC, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
 
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(resource));
         when(identityRepository.save(any(ExternalIdentityEntity.class)))
@@ -419,8 +400,7 @@ class DefaultResourceServiceTest {
         UUID resourceId = UUID.randomUUID();
         UUID identityId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity resource = new ResourceEntity(resourceId, ownerId, ResourceType.MUSIC,
-            ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        ResourceEntity resource = new ResourceEntity(resourceId, ResourceType.MUSIC, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
         ExternalIdentityEntity identity = new ExternalIdentityEntity(identityId, resourceId,
             "musicbrainz", "recording", "abc", now, now, 0L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(resource));
@@ -456,8 +436,7 @@ class DefaultResourceServiceTest {
         UUID resourceId = UUID.randomUUID();
         UUID identityId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity resource = new ResourceEntity(resourceId, ownerId, ResourceType.MUSIC,
-            ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        ResourceEntity resource = new ResourceEntity(resourceId, ResourceType.MUSIC, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
         ExternalIdentityEntity identity = new ExternalIdentityEntity(identityId, resourceId,
             "musicbrainz:subject", "recording", "abc", now, now, 0L);
         DurableEventPublisher events = mock(DurableEventPublisher.class);
@@ -494,8 +473,7 @@ class DefaultResourceServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity saved = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK,
-            "测试书籍", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        ResourceEntity saved = new ResourceEntity(resourceId, ResourceType.BOOK, "测试书籍", null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
         CreateResourceRequest request = new CreateResourceRequest(ResourceType.BOOK, "测试书籍", "zh-CN");
         ResourceCreationIdempotencyRepository idempotency = mock(ResourceCreationIdempotencyRepository.class);
         TransactionalOperator transaction = mock(TransactionalOperator.class);

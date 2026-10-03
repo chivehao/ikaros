@@ -43,8 +43,7 @@ class DefaultResourceTitleServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity resource = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE,
-            now, now, null, 0L);
+        ResourceEntity resource = new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
         ResourceTitleEntity oldTitle = new ResourceTitleEntity(UUID.randomUUID(), resourceId, "zh-CN", "旧标题", true,
             now, now, 0L);
         ResourceTitleEntity savedOld = new ResourceTitleEntity(oldTitle.id(), resourceId, "zh-CN", "旧标题", false,
@@ -74,7 +73,7 @@ class DefaultResourceTitleServiceTest {
         UUID titleId = UUID.randomUUID();
         Instant now = Instant.now();
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(
-            new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE, now, now, null, 0L)));
+            new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L)));
         when(titleRepository.findAllByResourceIdOrderByPrimaryDescLocaleAsc(resourceId)).thenReturn(Flux.just(
             new ResourceTitleEntity(titleId, resourceId, "zh-CN", "唯一标题", true, now, now, 0L)));
 
@@ -88,8 +87,7 @@ class DefaultResourceTitleServiceTest {
         UUID ownerId = UUID.randomUUID();
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
-        ResourceEntity resource = new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE,
-            now, now, null, 0L);
+        ResourceEntity resource = new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
         ResourceTitleEntity title = new ResourceTitleEntity(UUID.randomUUID(), resourceId, "zh-CN", "正式标题", true,
             now, now, 0L, ResourceTitleKind.TITLE);
         ResourceTitleEntity alias = new ResourceTitleEntity(UUID.randomUUID(), resourceId, "zh-CN", "别名", false,
@@ -118,7 +116,7 @@ class DefaultResourceTitleServiceTest {
         ResourceTitleEntity secondary = new ResourceTitleEntity(UUID.randomUUID(), resourceId, "en", "English", false,
             now, now, 0L);
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(
-            new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE, now, now, null, 0L)));
+            new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L)));
         when(titleRepository.findAllByResourceIdOrderByPrimaryDescLocaleAsc(resourceId)).thenReturn(Flux.just(primary,
             secondary));
         when(titleRepository.save(any(ResourceTitleEntity.class))).thenReturn(Mono.just(secondary));

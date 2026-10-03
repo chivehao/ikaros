@@ -43,7 +43,7 @@ class DefaultFavoriteServiceTest {
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(
-            new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE, now, now, null, 0L)));
+            new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L)));
         when(favoriteRepository.findByOwnerIdAndResourceId(ownerId, resourceId)).thenReturn(Mono.empty());
         when(favoriteRepository.save(org.mockito.ArgumentMatchers.any(FavoriteEntity.class))).thenReturn(Mono.just(
             new FavoriteEntity(UUID.randomUUID(), ownerId, resourceId, now, 0L)));
@@ -63,7 +63,7 @@ class DefaultFavoriteServiceTest {
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(
-            new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE, now, now, null, 0L)));
+            new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L)));
         when(favoriteRepository.findByOwnerIdAndResourceId(ownerId, resourceId)).thenReturn(Mono.just(
             new FavoriteEntity(UUID.randomUUID(), ownerId, resourceId, now, 0L)));
 
@@ -78,7 +78,7 @@ class DefaultFavoriteServiceTest {
         UUID resourceId = UUID.randomUUID();
         Instant now = Instant.now();
         when(resourceRepository.findByIdAndOwnerId(resourceId, ownerId)).thenReturn(Mono.just(
-            new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE, now, now, null, 0L)));
+            new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L)));
         when(favoriteRepository.findByOwnerIdAndResourceId(ownerId, resourceId)).thenReturn(Mono.empty());
 
         StepVerifier.create(service.get(ownerId, resourceId))

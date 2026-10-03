@@ -110,7 +110,7 @@ class DefaultResourceActivityServiceTest {
     }
 
     private ResourceEntity resource(UUID ownerId, UUID resourceId, Instant now) {
-        return new ResourceEntity(resourceId, ownerId, ResourceType.BOOK, ResourceLifecycle.ACTIVE, now, now, null, 0L);
+        return new ResourceEntity(resourceId, ResourceType.BOOK, null, null, ResourceClassification.PRIVATE, ResourceLifecycle.ACTIVE.statusCode(), now, now, 0L);
     }
 
     private ResourceActivityEntity activity(UUID ownerId, Instant occurredAt) {

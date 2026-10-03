@@ -24,16 +24,4 @@ public record ResourceEntity(
     @Column("updated_at") Instant updatedAt,
     @Version Long version
 ) {
-    public ResourceEntity(UUID id, UUID ownerId, ResourceType resourceType, ResourceLifecycle lifecycle,
-                          Instant createdAt, Instant updatedAt, Instant deletedAt, Long version) {
-        this(id, resourceType, null, null, ResourceClassification.PRIVATE, lifecycle.statusCode(),
-            createdAt, updatedAt, version);
-    }
-
-    public ResourceEntity(UUID id, UUID ownerId, ResourceType resourceType, String primaryTitle, String summary,
-                          ResourceClassification dataClassification, ResourceLifecycle lifecycle,
-                          Instant createdAt, Instant updatedAt, Instant deletedAt, Long version) {
-        this(id, resourceType, primaryTitle, summary, dataClassification, lifecycle.statusCode(),
-            createdAt, updatedAt, version);
-    }
 }
